@@ -1,0 +1,132 @@
+---
+import AccessRequestForm from './AccessRequestForm.astro';
+
+const smallQuotes = [
+  {
+    text: 'That guidance actually changed how we\'re approaching the decision — it kept us from uprooting everything we\'re doing with our internal systems.',
+    author: 'Private beta tester',
+    context: 'On asking AmbitiousOS whether to switch platforms',
+  },
+  {
+    text: 'I tried to give the excuse that I\'ve never coded anything. AmbitiousOS wouldn\'t let me off the hook. The answer was just build.',
+    author: 'Private beta tester',
+    context: 'On getting started with Claude Code',
+  },
+  {
+    text: 'I know I wouldn\'t have crossed that bridge if it weren\'t for AmbitiousOS.',
+    author: 'Private beta tester',
+    context: '',
+  },
+  {
+    text: 'Our team has become much more comfortable with us going toward AI native.',
+    author: 'Private beta tester',
+    context: 'On team-wide impact',
+  },
+  {
+    text: 'I love AmbitiousOS.',
+    author: 'Private beta tester',
+    context: '',
+  },
+  {
+    text: 'People who are not just using AI but building with AI and bringing that technology into industry — those are the winners of the day.',
+    author: 'Private beta tester',
+    context: '',
+  },
+];
+---
+
+<section class="section-padding" id="testimonials">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl sm:text-4xl font-bold text-text-primary text-center mb-12">
+      What beta testers are saying
+    </h2>
+
+    <!-- Featured testimonial -->
+    <div class="glass-card glass-card-accent p-8 sm:p-10 mb-10 max-w-3xl mx-auto">
+      <blockquote class="space-y-6">
+        <p class="text-lg sm:text-xl text-text-primary leading-relaxed italic">
+          &ldquo;I've always been looking over the fence at other people in the AI space.
+          With AmbitiousOS, I'm able to be a part of this agentic AI revolution &mdash;
+          rather than watch it happening.&rdquo;
+        </p>
+        <p class="text-base sm:text-lg text-text-primary leading-relaxed italic">
+          &ldquo;I would love to be able to talk to you about this all the time.
+          The fact that I can take your best thinking and your best research and have that
+          conversation &mdash; and get really compelling, thoughtful, articulate answers &mdash;
+          has just been a tremendous unlock for me, and it's really given me
+          the confidence to become a builder.&rdquo;
+        </p>
+        <footer class="pt-4 border-t border-white/5">
+          <cite class="not-italic text-text-secondary font-medium">Private beta tester</cite>
+        </footer>
+      </blockquote>
+
+      <div class="mt-6 space-y-3">
+        <div class="use-case-callout">
+          <span class="use-case-icon" aria-hidden="true">🏢</span>
+          <p class="text-sm text-text-secondary">
+            His team was about to rip out their existing systems and move everything to a new platform.
+            He asked AmbitiousOS for guidance &mdash; and the answer changed their entire approach:
+            apply AI to what you already have, don't uproot everything. That advice redirected their strategy.
+          </p>
+        </div>
+        <div class="use-case-callout">
+          <span class="use-case-icon" aria-hidden="true">🔨</span>
+          <p class="text-sm text-text-secondary">
+            He'd never written a line of code. He asked AmbitiousOS how to start with Claude Code
+            and tried to give the excuse that he wasn't technical. The answer? Just build. Within hours
+            he was learning to code &mdash; a bridge he says he never would have crossed without AmbitiousOS.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quote wall -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      {smallQuotes.map((q) => (
+        <div class="glass-card p-6">
+          <blockquote>
+            {q.context && (
+              <p class="text-text-muted text-xs uppercase tracking-wider mb-2 font-medium">{q.context}</p>
+            )}
+            <p class="text-text-primary leading-relaxed italic mb-4">
+              &ldquo;{q.text}&rdquo;
+            </p>
+            <footer>
+              <cite class="not-italic text-sm text-text-muted">&mdash; {q.author}</cite>
+            </footer>
+          </blockquote>
+        </div>
+      ))}
+    </div>
+
+    <div class="text-center mt-10">
+      <button type="button" class="btn-primary" data-open-form="testimonials-access-form" onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'testimonials',type:'request-access'}})">
+        Join the beta
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+    </div>
+
+    <div class="max-w-lg mx-auto mt-4">
+      <AccessRequestForm id="testimonials-access-form" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .use-case-callout {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(2, 69, 54, 0.08);
+    border-radius: 10px;
+    border: 1px solid rgba(2, 69, 54, 0.15);
+  }
+
+  .use-case-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+</style>

@@ -1,0 +1,41 @@
+---
+import TopicLayout from '../../components/TopicLayout.astro';
+
+const exampleQuestions = [
+  'What is vibe coding and how do I get started?',
+  'What are the best AI coding tools in 2026?',
+  'How can non-engineers build software with AI?',
+  'What is Claude Code and how does it compare to Cursor?',
+];
+
+const relatedTopics = [
+  { title: 'AI Agents', href: '/topics/ai-agents' },
+  { title: 'Context Engineering', href: '/topics/context-engineering' },
+  { title: 'AI Strategy', href: '/topics/ai-strategy' },
+  { title: 'Enterprise AI', href: '/topics/enterprise-ai' },
+];
+---
+
+<TopicLayout
+  title="Vibe Coding"
+  metaTitle="Vibe Coding — Building with AI — AmbitiousOS"
+  metaDescription="Vibe coding, AI-assisted development, and building software with tools like Claude Code, Cursor, and Copilot. Research from Reading Ambitiously."
+  headline="Vibe Coding & Building with AI"
+  intro="Vibe coding is the practice of building software by describing what you want in natural language and letting AI write the code. It's lowering the barrier to creation and turning domain experts into builders."
+  exampleQuestions={exampleQuestions}
+  relatedTopics={relatedTopics}
+>
+  <p>
+    Tools like Claude Code, Cursor, GitHub Copilot, and Replit are making it possible for anyone
+    with an idea to build functional software. The revolution isn't just about writing code faster —
+    it's about who gets to build. Product managers, designers, analysts, and executives who
+    understand their domain can now create solutions without waiting for engineering bandwidth.
+  </p>
+  <p>
+    Reading Ambitiously has documented the rise of vibe coding from early experiments to production
+    workflows. The archive includes real examples of non-engineers shipping products, comparisons
+    of AI coding tools, and frameworks for thinking about when to vibe code vs. when to bring in
+    professional engineering. AmbitiousOS connects all of this through searchable chat and the
+    knowledge graph.
+  </p>
+</TopicLayout>

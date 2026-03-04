@@ -1,0 +1,94 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+---
+
+<Base
+  title="Terms of Service — AmbitiousOS"
+  description="Terms of service for AmbitiousOS and the Reading Ambitiously newsletter."
+>
+  <main class="section-padding">
+    <article class="max-w-3xl mx-auto prose-custom">
+      <nav class="text-text-muted text-sm mb-8">
+        <a href="/" class="hover:text-text-primary transition-colors">Home</a>
+        <span class="mx-2">/</span>
+        <span class="text-text-secondary">Terms</span>
+      </nav>
+
+      <h1>Terms of Service</h1>
+      <p class="text-text-muted text-sm">Last updated: March 2026</p>
+
+      <h2>Agreement</h2>
+      <p>
+        By accessing or using AmbitiousOS (&ldquo;the Service&rdquo;), operated by Reading Ambitiously,
+        you agree to be bound by these Terms of Service. If you do not agree, do not use the Service.
+      </p>
+
+      <h2>The Service</h2>
+      <p>
+        AmbitiousOS provides AI-powered research and analysis tools, including an AI chat assistant,
+        interactive knowledge graph, and curated content library. The Service is currently in private beta.
+      </p>
+
+      <h2>Access</h2>
+      <p>
+        Access to AmbitiousOS is granted on a per-user basis. You may not share your account credentials
+        or provide access to unauthorized users. We reserve the right to revoke access at any time.
+      </p>
+
+      <h2>Content</h2>
+      <p>
+        All content within AmbitiousOS, including curated research, AI-generated responses, and the
+        knowledge graph, is provided for informational purposes only. It does not constitute professional
+        advice. The content is the intellectual property of Reading Ambitiously.
+      </p>
+
+      <h2>AI-Generated Content</h2>
+      <p>
+        AI chat responses are generated based on curated source material but may contain inaccuracies.
+        You should independently verify any information before relying on it for important decisions.
+      </p>
+
+      <h2>Acceptable Use</h2>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Use the Service for any illegal purpose</li>
+        <li>Attempt to gain unauthorized access to the Service or its systems</li>
+        <li>Scrape, copy, or redistribute content from the Service</li>
+        <li>Use the Service to generate spam or misleading content</li>
+        <li>Interfere with the Service's operation or other users' access</li>
+      </ul>
+
+      <h2>Disclaimer</h2>
+      <p>
+        The Service is provided &ldquo;as is&rdquo; without warranties of any kind.
+        We do not guarantee uninterrupted access, accuracy of content, or fitness for any particular purpose.
+      </p>
+
+      <h2>Limitation of Liability</h2>
+      <p>
+        To the maximum extent permitted by law, Reading Ambitiously shall not be liable for any indirect,
+        incidental, special, or consequential damages arising from your use of the Service.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        We may update these Terms at any time. Continued use of the Service after changes constitutes
+        acceptance of the updated Terms.
+      </p>
+
+      <h2>Contact</h2>
+      <p>Questions about these Terms? Contact us at <a href="mailto:jack@readingambitiously.com">jack@readingambitiously.com</a>.</p>
+    </article>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .prose-custom h1 { @apply text-3xl sm:text-4xl font-bold text-text-primary mb-6; }
+  .prose-custom h2 { @apply text-xl font-semibold text-text-primary mt-10 mb-3; }
+  .prose-custom p { @apply text-text-secondary leading-relaxed mb-4; }
+  .prose-custom ul { @apply text-text-secondary leading-relaxed mb-4 pl-6 list-disc space-y-1; }
+  .prose-custom a { @apply text-galaxy-sage hover:underline; }
+</style>

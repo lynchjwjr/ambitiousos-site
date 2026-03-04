@@ -1,0 +1,40 @@
+---
+import TopicLayout from '../../components/TopicLayout.astro';
+
+const exampleQuestions = [
+  'How should a non-technical leader think about AI adoption?',
+  'What is the right AI strategy for a mid-size company?',
+  'How do I evaluate which tasks to automate with AI first?',
+  'What are the biggest mistakes companies make with AI?',
+];
+
+const relatedTopics = [
+  { title: 'Enterprise AI', href: '/topics/enterprise-ai' },
+  { title: 'AI Agents', href: '/topics/ai-agents' },
+  { title: 'Context Engineering', href: '/topics/context-engineering' },
+  { title: 'Vibe Coding', href: '/topics/vibe-coding' },
+];
+---
+
+<TopicLayout
+  title="AI Strategy"
+  metaTitle="AI Strategy for Leaders — AmbitiousOS"
+  metaDescription="AI strategy frameworks for business leaders. How to evaluate, adopt, and deploy AI in your organization. Research from Reading Ambitiously."
+  headline="AI Strategy for Leaders"
+  intro="Most AI strategies fail — not because the technology doesn't work, but because leaders don't have the context to make good decisions. Strategy without understanding is just guessing."
+  exampleQuestions={exampleQuestions}
+  relatedTopics={relatedTopics}
+>
+  <p>
+    The best AI strategies start with understanding what AI can actually do today — not in theory,
+    but in practice. This means understanding the difference between copilots and agents, knowing
+    which tasks benefit from automation vs. augmentation, and having a realistic view of implementation
+    timelines and costs.
+  </p>
+  <p>
+    AmbitiousOS was built for exactly this use case. Leaders who don't have time to read every AI paper,
+    follow every product launch, or attend every conference can instead ask their personal Chief AI
+    Officer. The platform synthesizes 64+ editions of curated research into conversational answers
+    grounded in real data, real companies, and real outcomes.
+  </p>
+</TopicLayout>

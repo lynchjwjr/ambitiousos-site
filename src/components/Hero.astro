@@ -1,0 +1,67 @@
+---
+import Starfield from './Starfield.astro';
+import SocialProofBadge from './SocialProofBadge.astro';
+import AccessRequestForm from './AccessRequestForm.astro';
+---
+
+<section class="hero-section relative min-h-[90vh] flex items-center justify-center overflow-hidden" id="hero">
+  <Starfield />
+
+  <div class="relative z-10 max-w-4xl mx-auto text-center px-6 py-20">
+    <SocialProofBadge class="mb-8" />
+
+    <h1 class="hero-headline text-text-primary font-bold leading-[1.1] mb-6">
+      It's really early.
+    </h1>
+
+    <p class="text-lg sm:text-xl text-text-secondary max-w-2xl mx-auto mb-10 leading-relaxed">
+      Less than 1% of the world has unlocked the power of AI. Most people are watching from the outside.
+      AmbitiousOS is your personal Chief AI Officer — trained on 5,000+ pieces of curated research, ready to pull you in.
+    </p>
+
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+      <button type="button" class="btn-primary" data-open-form="hero-access-form" onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'hero',type:'request-access'}})">
+        Hire your Chief AI Officer
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+      <a href="https://readingambitiously.com" class="btn-secondary" target="_blank" rel="noopener noreferrer" onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'hero',type:'subscribe'}})">
+        Subscribe free
+        <span aria-hidden="true">&rarr;</span>
+      </a>
+    </div>
+
+    <div class="max-w-lg mx-auto">
+      <AccessRequestForm id="hero-access-form" />
+    </div>
+
+    <p class="text-text-muted text-xs mt-4">Beta access is open to newsletter subscribers</p>
+
+  </div>
+
+  <!-- Gradient fade at bottom -->
+  <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-bg to-transparent pointer-events-none"></div>
+</section>
+
+<style>
+  .hero-headline {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+  }
+</style>
+
+<script>
+  // Toggle access request form on button click
+  document.querySelectorAll('[data-open-form]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-open-form');
+      if (!targetId) return;
+      const wrapper = document.getElementById(targetId);
+      if (wrapper) {
+        wrapper.classList.toggle('is-open');
+        const input = wrapper.querySelector('input[name="name"]') as HTMLInputElement;
+        if (input && wrapper.classList.contains('is-open')) {
+          input.focus();
+        }
+      }
+    });
+  });
+</script>

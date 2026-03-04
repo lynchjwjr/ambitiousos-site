@@ -1,0 +1,92 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+---
+
+<Base
+  title="Privacy Policy — AmbitiousOS"
+  description="Privacy policy for AmbitiousOS and the Reading Ambitiously newsletter."
+>
+  <main class="section-padding">
+    <article class="max-w-3xl mx-auto prose-custom">
+      <nav class="text-text-muted text-sm mb-8">
+        <a href="/" class="hover:text-text-primary transition-colors">Home</a>
+        <span class="mx-2">/</span>
+        <span class="text-text-secondary">Privacy</span>
+      </nav>
+
+      <h1>Privacy Policy</h1>
+      <p class="text-text-muted text-sm">Last updated: March 2026</p>
+
+      <h2>Overview</h2>
+      <p>
+        AmbitiousOS (&ldquo;we,&rdquo; &ldquo;our,&rdquo; &ldquo;us&rdquo;) is operated by Reading Ambitiously.
+        We respect your privacy and are committed to protecting your personal information.
+        This policy explains what data we collect, how we use it, and your rights.
+      </p>
+
+      <h2>Information We Collect</h2>
+      <h3>Account Information</h3>
+      <p>When you request access or sign in, we collect your email address and name. Authentication is handled via Supabase.</p>
+
+      <h3>Usage Data</h3>
+      <p>
+        We use <strong>Plausible Analytics</strong>, a privacy-first analytics tool that does not use cookies,
+        does not collect personal data, and is fully GDPR/CCPA compliant. We collect aggregate page views,
+        referrer sources, and device types — never individual tracking data.
+      </p>
+
+      <h3>Conversations</h3>
+      <p>If you use the AI chat feature in AmbitiousOS, your conversation history is stored to provide continuity. Conversations are private to your account.</p>
+
+      <h2>How We Use Your Information</h2>
+      <ul>
+        <li>To provide and improve AmbitiousOS</li>
+        <li>To send you the Reading Ambitiously newsletter (if subscribed)</li>
+        <li>To communicate about your account and access</li>
+        <li>To understand aggregate usage patterns (via Plausible)</li>
+      </ul>
+
+      <h2>Data Sharing</h2>
+      <p>We do not sell, rent, or share your personal information with third parties for marketing purposes. We use the following service providers:</p>
+      <ul>
+        <li><strong>Supabase</strong> — authentication and database</li>
+        <li><strong>Vercel</strong> — website hosting</li>
+        <li><strong>Fly.io</strong> — API hosting</li>
+        <li><strong>Resend</strong> — transactional email</li>
+        <li><strong>Plausible</strong> — privacy-first analytics</li>
+        <li><strong>Substack</strong> — newsletter distribution</li>
+      </ul>
+
+      <h2>Cookies</h2>
+      <p>
+        This marketing site (<strong>ambitiousos.com</strong>) does not use cookies.
+        The AmbitiousOS app (os.readingambitiously.com) uses essential authentication cookies only — no tracking cookies.
+      </p>
+
+      <h2>Your Rights</h2>
+      <p>You have the right to:</p>
+      <ul>
+        <li>Access the personal data we hold about you</li>
+        <li>Request correction of inaccurate data</li>
+        <li>Request deletion of your data</li>
+        <li>Unsubscribe from the newsletter at any time</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <p>For privacy-related questions, contact us at <a href="mailto:jack@readingambitiously.com">jack@readingambitiously.com</a>.</p>
+    </article>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .prose-custom h1 { @apply text-3xl sm:text-4xl font-bold text-text-primary mb-6; }
+  .prose-custom h2 { @apply text-xl font-semibold text-text-primary mt-10 mb-3; }
+  .prose-custom h3 { @apply text-lg font-medium text-text-primary mt-6 mb-2; }
+  .prose-custom p { @apply text-text-secondary leading-relaxed mb-4; }
+  .prose-custom ul { @apply text-text-secondary leading-relaxed mb-4 pl-6 list-disc space-y-1; }
+  .prose-custom a { @apply text-galaxy-sage hover:underline; }
+  .prose-custom strong { @apply text-text-primary; }
+</style>

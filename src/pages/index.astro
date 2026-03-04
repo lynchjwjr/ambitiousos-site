@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import DotGrid from '../components/DotGrid.astro';
+import Features from '../components/Features.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Newsletter from '../components/Newsletter.astro';
+import PricingTable from '../components/PricingTable.astro';
+import Footer from '../components/Footer.astro';
+import StickyCTA from '../components/StickyCTA.astro';
+
+import '../styles/global.css';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      name: 'Reading Ambitiously',
+      url: 'https://readingambitiously.com',
+      sameAs: [
+        'https://linkedin.com/in/jackwlynchjr',
+        'https://x.com/JackWLynchJr',
+      ],
+    },
+    {
+      '@type': 'SoftwareApplication',
+      name: 'AmbitiousOS',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      description: 'Your personal Chief AI Officer. 2 years of curated AI research, interactive knowledge graph, and AI chat.',
+      url: 'https://ambitiousos.com',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+        description: 'Private beta — pricing TBD',
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'What is AmbitiousOS?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'AmbitiousOS is your personal Chief AI Officer. It combines 2 years of curated AI research (5,000+ pieces of content), an interactive knowledge graph, and an AI chat assistant trained on the full Reading Ambitiously archive — all in one platform.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How much does AmbitiousOS cost?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'AmbitiousOS is currently in private beta. The Reading Ambitiously newsletter is free forever. Paid pricing for AmbitiousOS will be announced when the beta concludes.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is Reading Ambitiously?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Reading Ambitiously is a free weekly newsletter delivered every Friday. Each edition covers the biggest ideas in AI and technology through curated research, charts, tweets, podcasts, and quotes. Every edition is fed back into AmbitiousOS to make the platform smarter.',
+          },
+        },
+      ],
+    },
+  ],
+};
+---
+
+<Base
+  title="AmbitiousOS — Your Personal Chief AI Officer"
+  description="Less than 1% of the world has unlocked AI. AmbitiousOS gives you 5,000+ pieces of curated research, an interactive knowledge graph, and an AI chat trained on 64+ editions of Reading Ambitiously."
+  jsonLd={jsonLd}
+>
+  <main>
+    <Hero />
+    <DotGrid />
+    <Features />
+    <Testimonials />
+    <Newsletter />
+    <PricingTable />
+  </main>
+  <Footer />
+  <StickyCTA />
+</Base>

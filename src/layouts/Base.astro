@@ -1,0 +1,88 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  canonicalUrl?: string;
+  jsonLd?: object;
+}
+
+const {
+  title,
+  description,
+  ogImage = '/og-image.png',
+  canonicalUrl,
+  jsonLd,
+} = Astro.props;
+
+const siteUrl = 'https://ambitiousos.com';
+const canonical = canonicalUrl || new URL(Astro.url.pathname, siteUrl).href;
+const ogImageUrl = ogImage.startsWith('http') ? ogImage : new URL(ogImage, siteUrl).href;
+
+const defaultJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'AmbitiousOS',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  description: 'Your personal Chief AI Officer. 2 years of curated AI research, interactive knowledge graph, and AI chat — all in one platform.',
+  url: siteUrl,
+  creator: {
+    '@type': 'Organization',
+    name: 'Reading Ambitiously',
+    url: 'https://readingambitiously.com',
+  },
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Favicons -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="AmbitiousOS" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- Structured Data -->
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(jsonLd || defaultJsonLd)}
+    />
+
+    <!-- Plausible Analytics (privacy-first, no cookies, custom events enabled) -->
+    <script
+      defer
+      data-domain="ambitiousos.com"
+      src="https://plausible.io/js/script.tagged-events.js"
+    ></script>
+  </head>
+  <body class="min-h-screen">
+    <slot />
+  </body>
+</html>

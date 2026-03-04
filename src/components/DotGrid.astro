@@ -1,0 +1,295 @@
+---
+import AccessRequestForm from './AccessRequestForm.astro';
+
+/*
+  2,500-dot grid visualization — "How Early It Really Is"
+  Each dot ≈ 3.2M people. 2,500 dots = 8.1B humans.
+
+  Breakdown (sequential order, top-to-bottom, left-to-right):
+  - 2,092 dim dots  (84%)   → never used AI
+  - 400 teal dots   (16%)   → free chatbot user
+  - 7 copper dots   (0.3%)  → pays $20/mo for AI
+  - 1 sage dot      (0.04%) → uses coding scaffold
+
+  The power is in the visual: a massive wall of dim dots with a thin
+  band of color at the very bottom. No shuffling — sequential order.
+*/
+
+const TOTAL = 2500;
+const TEAL = 400;
+const COPPER = 7;
+const SAGE = 1;
+const DIM = TOTAL - TEAL - COPPER - SAGE; // 2092
+
+// Sequential: dim first, then teal, copper, sage at the very end
+const dots: string[] = [];
+for (let i = 0; i < DIM; i++) dots.push('dim');
+for (let i = 0; i < TEAL; i++) dots.push('teal');
+for (let i = 0; i < COPPER; i++) dots.push('copper');
+for (let i = 0; i < SAGE; i++) dots.push('sage');
+
+const shareUrl = 'https://ambitiousos.com/#dot-grid';
+const shareText = 'Less than 0.06% of the world is truly leveraging AI. Most people are still watching from the outside.';
+---
+
+<section class="section-padding" id="dot-grid">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="text-3xl sm:text-5xl font-bold text-text-primary text-center mb-2">
+      Each dot is ~3.2 million people
+    </h2>
+    <p class="text-text-muted text-center mb-8 max-w-2xl mx-auto text-sm sm:text-base">
+      2,500 dots = 8.1 billion humans. Color = most advanced AI interaction, {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}.
+    </p>
+
+    <div class="dot-grid-wrapper" data-dot-grid>
+      <div class="dot-grid">
+        {dots.map((type) => (
+          <span class={`dot dot--${type}`} />
+        ))}
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item">
+        <span class="legend-swatch legend-swatch--dim"></span>
+        <span class="legend-label">Never used AI &middot; <span class="legend-num">~6.8B</span> <span class="legend-pct">(84%)</span></span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch legend-swatch--teal"></span>
+        <span class="legend-label">Free chatbot user &middot; <span class="legend-num">~1.3B</span> <span class="legend-pct">(16%)</span></span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch legend-swatch--copper"></span>
+        <span class="legend-label">Pays $20/mo for AI &middot; <span class="legend-num">~15-25M</span> <span class="legend-pct">(~0.3%)</span></span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch legend-swatch--sage"></span>
+        <span class="legend-label">Uses coding scaffold &middot; <span class="legend-num">~2-5M</span> <span class="legend-pct">(~0.04%)</span></span>
+      </div>
+    </div>
+
+    <p class="text-text-muted text-center mt-10 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
+      You think AI is crowded because you're in an echo chamber of the 0.06%.
+      The real world hasn't even started.
+    </p>
+
+    <p class="text-text-secondary text-center mt-10 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
+      When paradigm shifts occur, the world re-orders itself. The people who understand this technology
+      &mdash; who know how to bring change to their organizations &mdash; come out on top.
+      That's why we built AmbitiousOS.
+    </p>
+
+    <div class="text-center mt-10">
+      <button type="button" class="btn-primary" data-open-form="dotgrid-access-form" onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'dotgrid',type:'request-access'}})">
+        Be part of the 0.06%
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+    </div>
+
+    <div class="max-w-lg mx-auto mt-4">
+      <AccessRequestForm id="dotgrid-access-form" />
+    </div>
+
+    <!-- Share links -->
+    <div class="text-center mt-8">
+      <p class="text-text-muted text-xs mb-3">Know someone who needs to see this?</p>
+      <div class="flex justify-center gap-4">
+        <a
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="share-link"
+          aria-label="Share on X (Twitter)"
+          onclick="if(typeof plausible==='function')plausible('Share',{props:{platform:'twitter',section:'dotgrid'}})"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          <span>Share on X</span>
+        </a>
+        <a
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="share-link"
+          aria-label="Share on LinkedIn"
+          onclick="if(typeof plausible==='function')plausible('Share',{props:{platform:'linkedin',section:'dotgrid'}})"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          <span>Share on LinkedIn</span>
+        </a>
+        <button
+          type="button"
+          class="share-link"
+          aria-label="Copy link"
+          data-copy-link="https://ambitiousos.com/#dot-grid"
+          onclick="if(typeof plausible==='function')plausible('Share',{props:{platform:'copy',section:'dotgrid'}})"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          <span>Copy link</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .dot-grid-wrapper {
+    overflow: hidden;
+    border-radius: 8px;
+    padding: 6px;
+    background: #0c0b09;
+  }
+
+  .dot-grid {
+    display: grid;
+    grid-template-columns: repeat(50, 1fr);
+    gap: 3px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .dot {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    transition: background 0.6s ease, box-shadow 0.6s ease;
+  }
+
+  /* Sequential final state — dim fills top, color bands at bottom */
+  .dot--dim {
+    background: rgba(238, 228, 219, 0.18);
+  }
+  .dot--teal {
+    background: #3D8B6E;
+  }
+  .dot--copper {
+    background: #D4A574;
+  }
+  .dot--sage {
+    background: #E05555;
+  }
+
+  /* Before animation: all dots start uniform dim */
+  .dot-grid-wrapper:not(.is-revealed) .dot--teal,
+  .dot-grid-wrapper:not(.is-revealed) .dot--copper,
+  .dot-grid-wrapper:not(.is-revealed) .dot--sage {
+    background: rgba(238, 228, 219, 0.18);
+    box-shadow: none;
+  }
+
+  /* Mobile: narrower grid */
+  @media (max-width: 639px) {
+    .dot-grid {
+      grid-template-columns: repeat(25, 1fr);
+      gap: 2px;
+    }
+  }
+
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .dot-grid {
+      grid-template-columns: repeat(35, 1fr);
+      gap: 2px;
+    }
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem 2rem;
+    margin-top: 1.5rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .legend-swatch--dim { background: rgba(238, 228, 219, 0.18); border: 1px solid rgba(238, 228, 219, 0.25); }
+  .legend-swatch--teal { background: #3D8B6E; }
+  .legend-swatch--copper { background: #D4A574; }
+  .legend-swatch--sage { background: #E05555; }
+
+  .legend-label {
+    font-size: 0.8125rem;
+    color: #aaa;
+  }
+
+  .legend-num {
+    font-weight: 600;
+    color: #ccc;
+  }
+
+  .legend-pct {
+    color: #777;
+  }
+
+  /* Share links */
+  .share-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    color: #777;
+    border: 1px solid rgba(238, 228, 219, 0.08);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .share-link:hover {
+    color: #eee4db;
+    border-color: rgba(238, 228, 219, 0.2);
+  }
+</style>
+
+<script>
+  // IntersectionObserver: reveal colored dots when grid scrolls into view
+  const wrapper = document.querySelector('[data-dot-grid]');
+  if (wrapper) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setTimeout(() => {
+              wrapper.classList.add('is-revealed');
+            }, 300);
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(wrapper);
+  }
+
+  // Copy link buttons
+  document.querySelectorAll('[data-copy-link]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const url = btn.getAttribute('data-copy-link');
+      if (!url) return;
+      try {
+        await navigator.clipboard.writeText(url);
+        const span = btn.querySelector('span');
+        if (span) {
+          const original = span.textContent;
+          span.textContent = 'Copied!';
+          setTimeout(() => { span.textContent = original; }, 2000);
+        }
+      } catch {
+        // Fallback: do nothing
+      }
+    });
+  });
+</script>

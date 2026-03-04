@@ -1,0 +1,182 @@
+---
+/* CSS-only starfield with floating galaxy nodes and curved edges.
+   Uses pseudo-elements and box-shadows — zero JavaScript. */
+---
+
+<div class="starfield" aria-hidden="true">
+  <div class="starfield-layer starfield-layer--1"></div>
+  <div class="starfield-layer starfield-layer--2"></div>
+  <div class="starfield-layer starfield-layer--3"></div>
+  <div class="starfield-nodes">
+    <!-- Primary cluster (center-left) -->
+    <span class="node node--teal node--1"></span>
+    <span class="node node--teal node--2"></span>
+    <span class="node node--copper node--3"></span>
+    <span class="node node--sage node--4"></span>
+    <!-- Secondary cluster (right) -->
+    <span class="node node--teal node--5"></span>
+    <span class="node node--copper node--6"></span>
+    <span class="node node--sage node--7"></span>
+    <span class="node node--teal node--8"></span>
+    <!-- Scattered outer nodes -->
+    <span class="node node--teal node--9"></span>
+    <span class="node node--copper node--10"></span>
+    <span class="node node--teal node--11"></span>
+    <span class="node node--sage node--12"></span>
+    <span class="node node--teal node--13"></span>
+    <span class="node node--copper node--14"></span>
+  </div>
+  <!-- Curved edges between nodes -->
+  <svg class="starfield-edges" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+    <path d="M200,140 Q350,80 520,190" stroke="rgba(61,139,110,0.25)" stroke-width="1.5" fill="none" />
+    <path d="M520,190 Q700,280 900,170" stroke="rgba(61,139,110,0.20)" stroke-width="1.5" fill="none" />
+    <path d="M200,140 Q300,250 450,340" stroke="rgba(212,165,116,0.18)" stroke-width="1.2" fill="none" />
+    <path d="M450,340 Q600,380 780,320" stroke="rgba(197,221,185,0.15)" stroke-width="1.2" fill="none" />
+    <path d="M900,170 Q1000,250 1080,200" stroke="rgba(212,165,116,0.15)" stroke-width="1" fill="none" />
+    <path d="M520,190 Q480,300 450,340" stroke="rgba(61,139,110,0.12)" stroke-width="1" fill="none" />
+    <path d="M780,320 Q850,250 900,170" stroke="rgba(197,221,185,0.10)" stroke-width="1" fill="none" />
+    <path d="M100,400 Q250,350 450,340" stroke="rgba(61,139,110,0.10)" stroke-width="1" fill="none" />
+    <path d="M780,320 Q900,400 1050,450" stroke="rgba(212,165,116,0.08)" stroke-width="1" fill="none" />
+  </svg>
+</div>
+
+<style>
+  .starfield {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  /* Star layers — dots via box-shadow, brighter than before */
+  .starfield-layer {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+  }
+
+  .starfield-layer--1 {
+    width: 2px;
+    height: 2px;
+    box-shadow:
+      120px 80px #eee4db66, 350px 150px #eee4db55, 580px 50px #eee4db60,
+      800px 120px #eee4db50, 1050px 90px #eee4db66, 200px 300px #eee4db44,
+      450px 250px #eee4db55, 700px 320px #eee4db50, 950px 280px #eee4db60,
+      150px 450px #eee4db40, 400px 500px #eee4db55, 650px 480px #eee4db50,
+      900px 430px #eee4db55, 1100px 500px #eee4db44, 300px 600px #eee4db50,
+      550px 580px #eee4db40, 850px 620px #eee4db55, 100px 550px #eee4db50,
+      1200px 350px #eee4db40, 50px 200px #eee4db55,
+      1300px 150px #eee4db50, 1400px 400px #eee4db44, 30px 380px #eee4db55,
+      750px 50px #eee4db44, 1150px 250px #eee4db50;
+    animation: drift 80s linear infinite;
+  }
+
+  .starfield-layer--2 {
+    width: 3px;
+    height: 3px;
+    box-shadow:
+      180px 120px #eee4db44, 420px 200px #eee4db38, 660px 100px #eee4db44,
+      900px 250px #eee4db30, 250px 380px #eee4db44, 520px 420px #eee4db38,
+      780px 350px #eee4db44, 1020px 400px #eee4db30, 350px 520px #eee4db38,
+      600px 550px #eee4db30, 850px 500px #eee4db44, 1150px 550px #eee4db38,
+      70px 100px #eee4db38, 1280px 300px #eee4db30;
+    animation: drift 120s linear infinite reverse;
+  }
+
+  .starfield-layer--3 {
+    width: 1px;
+    height: 1px;
+    box-shadow:
+      60px 40px #eee4db30, 280px 110px #eee4db25, 500px 180px #eee4db30,
+      720px 60px #eee4db25, 1000px 160px #eee4db30, 160px 350px #eee4db20,
+      380px 300px #eee4db30, 640px 380px #eee4db25, 880px 340px #eee4db30,
+      1100px 300px #eee4db20, 1350px 200px #eee4db25, 480px 620px #eee4db20;
+    animation: drift 160s linear infinite;
+  }
+
+  @keyframes drift {
+    from { transform: translateX(0) translateY(0); }
+    to { transform: translateX(-60px) translateY(-30px); }
+  }
+
+  /* Floating galaxy nodes — bigger, brighter glow */
+  .starfield-nodes {
+    position: absolute;
+    inset: 0;
+  }
+
+  .node {
+    position: absolute;
+    border-radius: 50%;
+    animation: float 12s ease-in-out infinite;
+  }
+
+  .node--teal {
+    background: #3D8B6E;
+    box-shadow:
+      0 0 8px 2px rgba(61, 139, 110, 0.6),
+      0 0 24px 4px rgba(61, 139, 110, 0.3),
+      0 0 60px 8px rgba(61, 139, 110, 0.1);
+  }
+  .node--copper {
+    background: #D4A574;
+    box-shadow:
+      0 0 8px 2px rgba(212, 165, 116, 0.6),
+      0 0 24px 4px rgba(212, 165, 116, 0.3),
+      0 0 60px 8px rgba(212, 165, 116, 0.1);
+  }
+  .node--sage {
+    background: #C5DDB9;
+    box-shadow:
+      0 0 8px 2px rgba(197, 221, 185, 0.5),
+      0 0 24px 4px rgba(197, 221, 185, 0.25),
+      0 0 60px 8px rgba(197, 221, 185, 0.08);
+  }
+
+  /* Primary cluster */
+  .node--1  { width: 14px; height: 14px; top: 18%; left: 16%;  animation-delay: 0s; }
+  .node--2  { width: 10px; height: 10px; top: 26%; left: 42%;  animation-delay: -3s; }
+  .node--3  { width: 12px; height: 12px; top: 10%; left: 72%;  animation-delay: -5s; }
+  .node--4  { width:  8px; height:  8px; top: 44%; left: 36%;  animation-delay: -2s; }
+
+  /* Secondary cluster */
+  .node--5  { width: 12px; height: 12px; top: 55%; left: 62%;  animation-delay: -7s; }
+  .node--6  { width: 10px; height: 10px; top: 60%; left: 22%;  animation-delay: -4s; }
+  .node--7  { width:  8px; height:  8px; top: 32%; left: 85%;  animation-delay: -9s; }
+  .node--8  { width: 10px; height: 10px; top: 72%; left: 48%;  animation-delay: -6s; }
+
+  /* Scattered outer nodes */
+  .node--9  { width:  6px; height:  6px; top:  8%; left: 45%;  animation-delay: -1s; }
+  .node--10 { width:  8px; height:  8px; top: 68%; left: 82%;  animation-delay: -8s; }
+  .node--11 { width:  6px; height:  6px; top: 80%; left: 15%;  animation-delay: -10s; }
+  .node--12 { width:  5px; height:  5px; top: 15%; left: 92%;  animation-delay: -4.5s; }
+  .node--13 { width:  7px; height:  7px; top: 48%; left:  8%;  animation-delay: -6.5s; }
+  .node--14 { width:  6px; height:  6px; top: 85%; left: 70%;  animation-delay: -11s; }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0); opacity: 0.7; }
+    25% { transform: translate(10px, -14px); opacity: 1; }
+    50% { transform: translate(-8px, 10px); opacity: 0.8; }
+    75% { transform: translate(12px, 5px); opacity: 0.9; }
+  }
+
+  .starfield-edges {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+    animation: fadeEdges 20s ease-in-out infinite alternate;
+  }
+
+  @keyframes fadeEdges {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+
+  /* Fewer particles on mobile */
+  @media (max-width: 639px) {
+    .starfield-layer--3 { display: none; }
+    .node--9, .node--10, .node--11, .node--12, .node--13, .node--14 { display: none; }
+  }
+</style>

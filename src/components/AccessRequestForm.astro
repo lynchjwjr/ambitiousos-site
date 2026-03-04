@@ -1,0 +1,159 @@
+---
+interface Props {
+  id: string;
+  /** Show form inline (visible) vs triggered by button click */
+  inline?: boolean;
+}
+
+const { id, inline = false } = Astro.props;
+---
+
+<div class="access-form-wrapper" id={id} data-inline={inline ? 'true' : 'false'}>
+  <form class="access-form" data-access-form>
+    <!-- Honeypot — hidden from real users -->
+    <div style="position:absolute;left:-9999px" aria-hidden="true">
+      <input type="text" name="website" tabindex="-1" autocomplete="off" data-hp />
+    </div>
+
+    <div class="access-form-fields">
+      <input
+        type="text"
+        name="name"
+        placeholder="Your name"
+        required
+        class="access-input"
+        aria-label="Your name"
+        autocomplete="name"
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="you@example.com"
+        required
+        class="access-input"
+        aria-label="Email address"
+        autocomplete="email"
+      />
+      <button type="submit" class="btn-primary whitespace-nowrap text-sm py-3 px-5">
+        Request Access
+      </button>
+    </div>
+
+    <p class="access-form-status" data-form-status></p>
+  </form>
+</div>
+
+<style>
+  .access-form-wrapper[data-inline="false"] .access-form {
+    display: none;
+  }
+
+  .access-form-wrapper[data-inline="false"].is-open .access-form {
+    display: block;
+  }
+
+  .access-form-fields {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .access-input {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.75rem 1rem;
+    background: rgba(30, 28, 23, 0.8);
+    border: 1px solid rgba(238, 228, 219, 0.12);
+    border-radius: 12px;
+    color: #eee4db;
+    font-size: 0.9375rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .access-input::placeholder {
+    color: #666;
+  }
+
+  .access-input:focus {
+    border-color: rgba(2, 69, 54, 0.5);
+    box-shadow: 0 0 0 3px rgba(2, 69, 54, 0.15);
+  }
+
+  .access-form-status {
+    font-size: 0.8125rem;
+    margin-top: 0.5rem;
+    min-height: 1.25rem;
+    text-align: center;
+  }
+
+  .access-form-status.success {
+    color: #5cb85c;
+  }
+
+  .access-form-status.error {
+    color: #e05555;
+  }
+
+  @media (max-width: 639px) {
+    .access-form-fields {
+      flex-direction: column;
+    }
+
+    .access-input {
+      min-width: 100%;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-access-form]').forEach((form) => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const f = e.target as HTMLFormElement;
+      const status = f.querySelector('[data-form-status]') as HTMLElement;
+      const hp = f.querySelector('[data-hp]') as HTMLInputElement;
+      const btn = f.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+      // Honeypot check
+      if (hp && hp.value) return;
+
+      const name = (f.querySelector('input[name="name"]') as HTMLInputElement).value.trim();
+      const email = (f.querySelector('input[name="email"]') as HTMLInputElement).value.trim();
+
+      if (!name || !email) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      status.textContent = '';
+      status.className = 'access-form-status';
+
+      try {
+        const res = await fetch('https://ra-os-api.fly.dev/api/access/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email }),
+        });
+
+        if (res.ok) {
+          status.textContent = 'Request sent! We\'ll be in touch soon.';
+          status.classList.add('success');
+          f.reset();
+          if (typeof (window as any).plausible === 'function') {
+            (window as any).plausible('Access Request Submitted', { props: { source: f.closest('[id]')?.id || 'unknown' } });
+          }
+        } else {
+          const data = await res.json().catch(() => ({}));
+          status.textContent = (data as any).error || 'Something went wrong. Please try again.';
+          status.classList.add('error');
+        }
+      } catch {
+        status.textContent = 'Network error. Please try again.';
+        status.classList.add('error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Request Access';
+      }
+    });
+  });
+</script>

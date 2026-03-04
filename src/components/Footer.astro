@@ -1,0 +1,156 @@
+---
+const topicLinks = [
+  { title: 'AI Agents', href: '/topics/ai-agents' },
+  { title: 'Context Engineering', href: '/topics/context-engineering' },
+  { title: 'Enterprise AI', href: '/topics/enterprise-ai' },
+  { title: 'Vibe Coding', href: '/topics/vibe-coding' },
+  { title: 'AI Strategy', href: '/topics/ai-strategy' },
+];
+
+// SEO topic tags — pulled from the 493-entity knowledge graph corpus
+const corpusTopics = [
+  'OpenAI', 'Anthropic', 'Google', 'Microsoft', 'Nvidia', 'Salesforce',
+  'Meta', 'Palantir', 'Amazon', 'Stripe', 'Databricks',
+  'ChatGPT', 'Claude', 'Cursor', 'DeepSeek', 'Gemini',
+  'Sam Altman', 'Jensen Huang', 'Marc Benioff', 'Dario Amodei', 'Satya Nadella',
+  'Jevons Paradox', 'Scaling Laws', 'AI Pricing', 'Vertical SaaS',
+  'Klarna', 'ServiceTitan', 'Rippling', 'a16z', 'Y Combinator',
+];
+
+const productLinks = [
+  { title: 'AmbitiousOS App', href: 'https://os.readingambitiously.com', external: true },
+  { title: 'Galaxy', href: 'https://os.readingambitiously.com/galaxy', external: true },
+  { title: 'Newsletter', href: '/newsletter' },
+  { title: 'FAQ', href: '/faq' },
+];
+
+const legalLinks = [
+  { title: 'Privacy', href: '/privacy' },
+  { title: 'Terms', href: '/terms' },
+];
+---
+
+<footer class="border-t border-white/5 bg-bg-card/20">
+  <div class="max-w-6xl mx-auto px-6 py-12 sm:py-16">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
+      <!-- Brand -->
+      <div class="col-span-2 sm:col-span-1">
+        <a href="/" class="inline-block mb-4">
+          <img src="/favicon.svg" alt="AmbitiousOS" class="h-auto w-20" />
+        </a>
+        <p class="text-text-muted text-sm leading-relaxed">
+          Your personal Chief AI Officer. Curated intelligence about AI and the ideas shaping the world.
+        </p>
+      </div>
+
+      <!-- Topics -->
+      <div>
+        <h4 class="text-text-primary text-sm font-semibold mb-4 uppercase tracking-wider">Topics</h4>
+        <ul class="space-y-2">
+          {topicLinks.map((link) => (
+            <li>
+              <a href={link.href} class="text-text-muted text-sm hover:text-text-primary transition-colors">
+                {link.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Product -->
+      <div>
+        <h4 class="text-text-primary text-sm font-semibold mb-4 uppercase tracking-wider">Product</h4>
+        <ul class="space-y-2">
+          {productLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-text-muted text-sm hover:text-text-primary transition-colors"
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+              >
+                {link.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Legal -->
+      <div>
+        <h4 class="text-text-primary text-sm font-semibold mb-4 uppercase tracking-wider">Legal</h4>
+        <ul class="space-y-2">
+          {legalLinks.map((link) => (
+            <li>
+              <a href={link.href} class="text-text-muted text-sm hover:text-text-primary transition-colors">
+                {link.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Corpus topic cloud — SEO keyword density from the knowledge graph -->
+    <div class="border-t border-white/5 pt-8 mb-8">
+      <h4 class="text-text-muted text-xs font-medium uppercase tracking-wider mb-4 text-center">
+        Explore 493 entities across the knowledge graph
+      </h4>
+      <div class="flex flex-wrap justify-center gap-2">
+        {corpusTopics.map((topic) => (
+          <span class="corpus-tag">{topic}</span>
+        ))}
+      </div>
+    </div>
+
+    <div class="border-t border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-text-muted text-xs">
+        &copy; {new Date().getFullYear()} Reading Ambitiously. All rights reserved.
+      </p>
+      <div class="flex items-center gap-6">
+        <a
+          href="https://readingambitiously.com"
+          class="text-text-muted text-xs hover:text-text-primary transition-colors"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Substack
+        </a>
+        <a
+          href="https://www.linkedin.com/in/lynchjw/"
+          class="text-text-muted text-xs hover:text-text-primary transition-colors"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          LinkedIn
+        </a>
+        <a
+          href="https://x.com/lynchjw"
+          class="text-text-muted text-xs hover:text-text-primary transition-colors"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          X / Twitter
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .corpus-tag {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    background: rgba(30, 28, 23, 0.6);
+    border: 1px solid rgba(238, 228, 219, 0.06);
+    border-radius: 6px;
+    font-size: 0.6875rem;
+    color: #777;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .corpus-tag:hover {
+    color: #aaa;
+    border-color: rgba(238, 228, 219, 0.12);
+  }
+</style>

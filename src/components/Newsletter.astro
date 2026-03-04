@@ -1,0 +1,347 @@
+---
+// Fetch latest editions from Substack RSS feed at build time
+interface Edition {
+  title: string;
+  date: string;
+  link: string;
+  description: string;
+  image: string;
+}
+
+let editions: Edition[] = [];
+let fetchFailed = false;
+
+try {
+  const res = await fetch('https://www.readingambitiously.com/feed');
+  const xml = await res.text();
+
+  const items = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
+
+  editions = items.slice(0, 4).map((item) => {
+    const title = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/)?.[1]
+      || item.match(/<title>(.*?)<\/title>/)?.[1]
+      || 'Untitled';
+    const link = item.match(/<link>(.*?)<\/link>/)?.[1]
+      || 'https://www.readingambitiously.com';
+    const pubDate = item.match(/<pubDate>(.*?)<\/pubDate>/)?.[1] || '';
+    const description = item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/)?.[1]
+      || item.match(/<description>(.*?)<\/description>/)?.[1]
+      || '';
+    const image = item.match(/<enclosure[^>]+url="([^"]+)"/)?.[1] || '';
+
+    let date = pubDate;
+    try {
+      const d = new Date(pubDate);
+      date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+      // keep raw string
+    }
+
+    // Strip "Reading Ambitiously X.XX.XX - " prefix
+    const cleanTitle = title.replace(/^Reading Ambitiously\s+\d+[\.\-]\d+[\.\-]\d+\s*[-–—]\s*/, '');
+
+    // Truncate description to ~150 chars
+    let excerpt = description.replace(/<[^>]+>/g, '').trim();
+    if (excerpt.length > 150) {
+      excerpt = excerpt.slice(0, 150).replace(/\s+\S*$/, '') + '…';
+    }
+
+    return { title: cleanTitle, date, link, description: excerpt, image };
+  });
+} catch {
+  fetchFailed = true;
+}
+
+const featured = editions[0];
+const recent = editions.slice(1);
+
+// Static fallback sections (original content)
+const fallbackSections = [
+  { icon: '💡', title: 'Big Idea', description: 'The one concept you need to know this week.' },
+  { icon: '📊', title: 'Charts That Caught My Eye', description: 'Data visualizations that tell the story.' },
+  { icon: '🐦', title: 'Tweets & Scroll', description: 'Best of social media, curated.' },
+  { icon: '🎧', title: 'YouTube & Podcasts', description: 'Curated video and audio worth your time.' },
+  { icon: '✨', title: 'Quotes & Ideas to Live By', description: 'Wisdom worth saving.' },
+];
+
+// Dynamic urgency element
+const now = new Date();
+const dayOfWeek = now.getDay(); // 0=Sun, 5=Fri
+const urgencyText = dayOfWeek === 5
+  ? 'New edition today!'
+  : 'Next edition: this Friday';
+---
+
+<section class="section-padding bg-bg-card/30" id="newsletter">
+  <div class="max-w-6xl mx-auto">
+    {fetchFailed || !featured ? (
+      <!-- Fallback: static content cards -->
+      <h2 class="text-3xl sm:text-4xl font-bold text-text-primary text-center mb-4">
+        Reading Ambitiously
+      </h2>
+      <p class="text-text-secondary text-center max-w-2xl mx-auto mb-12 text-lg leading-relaxed">
+        We aim to give you power &mdash; the kind that comes from having the words, insight,
+        and legitimacy to lead with confidence. One big idea every Friday, plus the best of what we've been reading.
+      </p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
+        {fallbackSections.map((s) => (
+          <div class="glass-card p-5 text-center">
+            <div class="text-2xl mb-3">{s.icon}</div>
+            <h3 class="text-sm font-semibold text-text-primary mb-1">{s.title}</h3>
+            <p class="text-xs text-text-muted leading-relaxed">{s.description}</p>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <!-- Live content from RSS -->
+      <h2 class="text-3xl sm:text-4xl font-bold text-text-primary text-center mb-4">
+        This week's big idea
+      </h2>
+      <p class="text-text-secondary text-center max-w-2xl mx-auto mb-3 text-lg leading-relaxed">
+        We aim to give you power &mdash; the kind that comes from having the words, insight,
+        and legitimacy to lead with confidence. One big idea every Friday, plus the best of what we've been reading.
+      </p>
+
+      <!-- Urgency indicator -->
+      <p class="text-center mb-10">
+        <span class="urgency-badge">
+          <span class="urgency-dot"></span>
+          {urgencyText}
+        </span>
+      </p>
+
+      <!-- Featured latest edition -->
+      <div class="featured-card glass-card p-6 sm:p-8 mb-8">
+        <a
+          href={featured.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="block group"
+        >
+          <div class="flex flex-col sm:flex-row gap-6">
+            {featured.image && (
+              <div class="featured-image-wrap flex-shrink-0">
+                <img
+                  src={featured.image}
+                  alt={featured.title}
+                  class="featured-image"
+                  loading="lazy"
+                />
+              </div>
+            )}
+            <div class="flex flex-col justify-center min-w-0">
+              <span class="text-text-muted text-xs uppercase tracking-wider mb-2">Latest edition &middot; {featured.date}</span>
+              <h3 class="text-xl sm:text-2xl font-bold text-text-primary group-hover:text-galaxy-sage transition-colors mb-3 leading-snug">
+                {featured.title}
+              </h3>
+              {featured.description && (
+                <p class="text-text-secondary text-sm leading-relaxed mb-4">{featured.description}</p>
+              )}
+              <span class="text-galaxy-sage text-sm font-medium group-hover:underline">
+                Read on Substack &rarr;
+              </span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Share buttons for featured card -->
+        <div class="flex items-center gap-3 mt-4 pt-4 border-t border-white/5">
+          <span class="text-text-muted text-xs">Share:</span>
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(featured.title)}&url=${encodeURIComponent(featured.link)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="share-link"
+            aria-label="Share on X (Twitter)"
+            onclick="if(typeof plausible==='function')plausible('Share',{props:{platform:'twitter',section:'newsletter'}})"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a
+            href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(featured.link)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="share-link"
+            aria-label="Share on LinkedIn"
+            onclick="if(typeof plausible==='function')plausible('Share',{props:{platform:'linkedin',section:'newsletter'}})"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <button
+            type="button"
+            class="share-link"
+            aria-label="Copy link"
+            data-copy-link={featured.link}
+            onclick="if(typeof plausible==='function')plausible('Share',{props:{platform:'copy',section:'newsletter'}})"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent editions -->
+      {recent.length > 0 && (
+        <div class="mb-12">
+          <h3 class="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">Recent editions</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {recent.map((ed) => (
+              <a
+                href={ed.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="glass-card p-5 group hover:border-accent/30 transition-colors block"
+              >
+                <span class="text-text-muted text-xs">{ed.date}</span>
+                <h4 class="text-text-primary font-medium group-hover:text-galaxy-sage transition-colors mt-1 leading-snug">
+                  {ed.title}
+                </h4>
+                <span class="text-text-muted text-xs group-hover:text-text-primary transition-colors mt-2 inline-block">
+                  Read &rarr;
+                </span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    )}
+
+    <!-- Inline email capture (always shown) -->
+    <div class="max-w-md mx-auto">
+      <form
+        action="https://www.readingambitiously.com/api/v1/free?nojs=true"
+        method="post"
+        class="email-form"
+        target="_blank"
+      >
+        <input type="hidden" name="first_url" value="https://ambitiousos.com/" />
+        <input type="hidden" name="first_referrer" value="" />
+        <input type="hidden" name="current_url" value="https://ambitiousos.com/" />
+        <input type="hidden" name="current_referrer" value="" />
+
+        <div class="flex gap-3">
+          <input
+            type="email"
+            name="email"
+            placeholder="you@example.com"
+            required
+            class="email-input"
+            aria-label="Email address"
+          />
+          <button type="submit" class="btn-primary whitespace-nowrap text-sm py-3 px-5" onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'newsletter',type:'subscribe'}})">
+            Subscribe free
+          </button>
+        </div>
+      </form>
+      <p class="text-text-muted text-xs text-center mt-3">
+        Free newsletter every Friday. No spam. Unsubscribe anytime.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .email-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    background: rgba(30, 28, 23, 0.8);
+    border: 1px solid rgba(238, 228, 219, 0.12);
+    border-radius: 12px;
+    color: #eee4db;
+    font-size: 0.9375rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .email-input::placeholder {
+    color: #666;
+  }
+
+  .email-input:focus {
+    border-color: rgba(2, 69, 54, 0.5);
+    box-shadow: 0 0 0 3px rgba(2, 69, 54, 0.15);
+  }
+
+  .featured-image-wrap {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .featured-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 639px) {
+    .featured-image-wrap {
+      width: 100%;
+      height: 180px;
+    }
+  }
+
+  /* Urgency badge */
+  .urgency-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    color: #C5DDB9;
+    background: rgba(197, 221, 185, 0.08);
+    border: 1px solid rgba(197, 221, 185, 0.15);
+    border-radius: 9999px;
+  }
+
+  .urgency-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #C5DDB9;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Share links */
+  .share-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: #777;
+    border: 1px solid rgba(238, 228, 219, 0.08);
+    border-radius: 6px;
+    background: transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .share-link:hover {
+    color: #eee4db;
+    border-color: rgba(238, 228, 219, 0.2);
+  }
+</style>
+
+<script>
+  // Copy link buttons
+  document.querySelectorAll('[data-copy-link]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const url = btn.getAttribute('data-copy-link');
+      if (!url) return;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        // Fallback: do nothing
+      }
+    });
+  });
+</script>

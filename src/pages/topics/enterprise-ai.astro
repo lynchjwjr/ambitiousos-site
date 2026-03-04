@@ -1,0 +1,40 @@
+---
+import TopicLayout from '../../components/TopicLayout.astro';
+
+const exampleQuestions = [
+  'How are enterprise SaaS companies integrating AI?',
+  'What is the best AI pricing strategy for B2B software?',
+  'Which companies are winning the enterprise AI market?',
+  'How should I evaluate AI vendors for my organization?',
+];
+
+const relatedTopics = [
+  { title: 'AI Strategy', href: '/topics/ai-strategy' },
+  { title: 'AI Agents', href: '/topics/ai-agents' },
+  { title: 'Context Engineering', href: '/topics/context-engineering' },
+  { title: 'Vibe Coding', href: '/topics/vibe-coding' },
+];
+---
+
+<TopicLayout
+  title="Enterprise AI"
+  metaTitle="Enterprise SaaS in the AI Era — AmbitiousOS"
+  metaDescription="How enterprise software companies are integrating AI, pricing strategies, vendor evaluation, and market dynamics. Research from Reading Ambitiously."
+  headline="Enterprise SaaS in the AI Era"
+  intro="The enterprise software landscape is being reshaped by AI. Every major SaaS company — from Salesforce to ServiceNow to Palantir — is racing to embed AI into their products. The winners will be defined by execution, not just features."
+  exampleQuestions={exampleQuestions}
+  relatedTopics={relatedTopics}
+>
+  <p>
+    The shift from seat-based pricing to consumption-based and outcome-based models is creating
+    new economics for software companies. AI copilots, agents, and automation are simultaneously
+    expanding total addressable markets while threatening incumbent revenue streams. Understanding
+    these dynamics is critical for anyone building, buying, or investing in enterprise software.
+  </p>
+  <p>
+    Reading Ambitiously has tracked this transformation across 64+ editions — covering earnings
+    calls, product launches, strategic pivots, and the companies that are getting it right.
+    AmbitiousOS connects all of this research through an interactive knowledge graph so you can
+    explore the relationships between companies, strategies, and market dynamics.
+  </p>
+</TopicLayout>

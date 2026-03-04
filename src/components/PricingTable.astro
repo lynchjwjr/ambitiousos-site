@@ -1,0 +1,134 @@
+---
+import AccessRequestForm from './AccessRequestForm.astro';
+
+const tiers = [
+  {
+    name: 'Reading Ambitiously',
+    price: 'Free',
+    priceNote: 'forever',
+    cta: 'Subscribe Free',
+    ctaLink: 'https://readingambitiously.com',
+    ctaExternal: true,
+    ctaForm: false,
+    accent: false,
+    features: [
+      { text: 'Newsletter every Friday', included: true },
+      { text: 'Big Ideas, Charts, Tweets, Podcasts, Quotes', included: true },
+      { text: 'AI Chat (Chief AI Officer 24/7)', included: false },
+      { text: 'Knowledge Graph (Galaxy)', included: false },
+      { text: 'Chat History', included: false },
+      { text: 'Web App', included: false },
+      { text: 'Mobile App', included: false },
+      { text: 'Desktop App', included: false },
+      { text: 'MCP Access', included: false },
+      { text: 'Team features', included: false },
+    ],
+  },
+  {
+    name: 'AmbitiousOS',
+    price: 'Private Beta',
+    priceNote: '',
+    cta: 'Request Access',
+    ctaLink: '',
+    ctaExternal: false,
+    ctaForm: true,
+    accent: true,
+    features: [
+      { text: 'Newsletter every Friday', included: true },
+      { text: 'Big Ideas, Charts, Tweets, Podcasts, Quotes', included: true },
+      { text: 'AI Chat (Chief AI Officer 24/7)', included: true },
+      { text: 'Knowledge Graph (Galaxy)', included: true },
+      { text: 'Chat History', included: true },
+      { text: 'Web App', included: true },
+      { text: 'Mobile App', included: true },
+      { text: 'Desktop App', included: true },
+      { text: 'MCP Access', included: false },
+      { text: 'Team features', included: false },
+    ],
+  },
+  {
+    name: 'Team',
+    price: 'TBD',
+    priceNote: 'coming soon',
+    cta: 'Contact Us',
+    ctaLink: 'https://os.readingambitiously.com',
+    ctaExternal: true,
+    ctaForm: false,
+    accent: false,
+    features: [
+      { text: 'Newsletter every Friday', included: true },
+      { text: 'Big Ideas, Charts, Tweets, Podcasts, Quotes', included: true },
+      { text: 'AI Chat (Chief AI Officer 24/7)', included: true },
+      { text: 'Knowledge Graph (Galaxy)', included: true },
+      { text: 'Chat History', included: true },
+      { text: 'Web App', included: true },
+      { text: 'Mobile App', included: true },
+      { text: 'Desktop App', included: true },
+      { text: 'MCP Access', included: true },
+      { text: 'Team features', included: true },
+    ],
+  },
+];
+---
+
+<section class="section-padding" id="pricing">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl sm:text-4xl font-bold text-text-primary text-center mb-4">
+      Join the ambitious community
+    </h2>
+    <p class="text-text-secondary text-center max-w-xl mx-auto mb-12">
+      Start free with the newsletter. Upgrade to AmbitiousOS when you're ready to go deeper.
+    </p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      {tiers.map((tier, i) => (
+        <div class:list={['glass-card p-6 sm:p-8 flex flex-col', tier.accent && 'glass-card-accent lg:scale-105']}>
+          <h3 class="text-lg font-semibold text-text-primary mb-1">{tier.name}</h3>
+          <div class="mb-1">
+            <span class="text-2xl font-bold text-text-primary">{tier.price}</span>
+          </div>
+          <p class="text-text-muted text-xs mb-6">{tier.priceNote}</p>
+
+          <ul class="space-y-3 flex-1 mb-8">
+            {tier.features.map((f) => (
+              <li class="flex items-start gap-2.5 text-sm">
+                {f.included ? (
+                  <span class="text-success flex-shrink-0 mt-0.5">&#10003;</span>
+                ) : (
+                  <span class="text-text-muted/40 flex-shrink-0 mt-0.5">&mdash;</span>
+                )}
+                <span class:list={[f.included ? 'text-text-secondary' : 'text-text-muted/40']}>
+                  {f.text}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          {tier.ctaForm ? (
+            <button
+              type="button"
+              class="btn-primary justify-center w-full"
+              data-open-form={`pricing-access-form-${i}`}
+              onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'pricing',type:'request-access'}})"
+            >
+              {tier.cta}
+            </button>
+            <div class="mt-3">
+              <AccessRequestForm id={`pricing-access-form-${i}`} />
+            </div>
+          ) : (
+            <a
+              href={tier.ctaLink}
+              class:list={[tier.accent ? 'btn-primary justify-center' : 'btn-secondary justify-center']}
+              target={tier.ctaExternal ? '_blank' : undefined}
+              rel={tier.ctaExternal ? 'noopener noreferrer' : undefined}
+              onclick={tier.ctaExternal && tier.name === 'Reading Ambitiously' ? "if(typeof plausible==='function')plausible('CTA Click',{props:{location:'pricing',type:'subscribe'}})" : undefined}
+            >
+              {tier.cta}
+            </a>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

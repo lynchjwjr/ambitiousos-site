@@ -1,0 +1,37 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div class:list={['social-proof-badge inline-flex items-center gap-2 px-4 py-2 rounded-full', className]}>
+  <span class="badge-dot"></span>
+  <span class="text-sm text-text-secondary font-medium">
+    Beta access open — subscribe to join
+  </span>
+</div>
+
+<style>
+  .social-proof-badge {
+    background: rgba(22, 20, 15, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(238, 228, 219, 0.08);
+  }
+
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #5cb85c;
+    box-shadow: 0 0 8px rgba(92, 184, 92, 0.4);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+</style>

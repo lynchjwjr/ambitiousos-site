@@ -1,0 +1,40 @@
+---
+import TopicLayout from '../../components/TopicLayout.astro';
+
+const exampleQuestions = [
+  'What are the most promising agentic AI frameworks in 2026?',
+  'How should I think about deploying AI agents in my organization?',
+  'What is the difference between tool use and agentic workflows?',
+  'Which companies are leading in AI agent development?',
+];
+
+const relatedTopics = [
+  { title: 'Context Engineering', href: '/topics/context-engineering' },
+  { title: 'Enterprise AI', href: '/topics/enterprise-ai' },
+  { title: 'Vibe Coding', href: '/topics/vibe-coding' },
+  { title: 'AI Strategy', href: '/topics/ai-strategy' },
+];
+---
+
+<TopicLayout
+  title="AI Agents"
+  metaTitle="AI Agents & Agentic Workflows — AmbitiousOS"
+  metaDescription="Understanding AI agents, agentic workflows, and autonomous systems. Curated research and analysis from the Reading Ambitiously archive."
+  headline="AI Agents & Agentic Workflows"
+  intro="AI agents represent a fundamental shift from chatbots to autonomous systems that can plan, reason, and execute multi-step tasks. The agentic revolution is redefining how software is built and how organizations operate."
+  exampleQuestions={exampleQuestions}
+  relatedTopics={relatedTopics}
+>
+  <p>
+    From tool-calling LLMs to fully autonomous workflows, the landscape is evolving rapidly. Early leaders
+    are discovering that the key isn't building smarter models — it's building better scaffolding around
+    existing models. Agents that can read, write, search, and execute code are already transforming software
+    development, customer support, and data analysis.
+  </p>
+  <p>
+    The Reading Ambitiously archive tracks this evolution across 64+ editions, covering frameworks like
+    LangChain, CrewAI, and Claude's tool use, as well as real-world deployments at companies like
+    Salesforce, ServiceNow, and Klarna. AmbitiousOS lets you explore this entire body of research through
+    AI chat and the interactive knowledge graph.
+  </p>
+</TopicLayout>

@@ -1,0 +1,118 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+// Fetch latest editions from Substack RSS feed at build time
+interface Edition {
+  title: string;
+  date: string;
+  link: string;
+}
+
+let editions: Edition[] = [];
+
+try {
+  const res = await fetch('https://www.readingambitiously.com/feed');
+  const xml = await res.text();
+
+  // Parse RSS items with regex (no XML parser dependency needed)
+  const items = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
+
+  editions = items.slice(0, 10).map((item) => {
+    const title = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/)?.[1]
+      || item.match(/<title>(.*?)<\/title>/)?.[1]
+      || 'Untitled';
+    const link = item.match(/<link>(.*?)<\/link>/)?.[1]
+      || 'https://www.readingambitiously.com';
+    const pubDate = item.match(/<pubDate>(.*?)<\/pubDate>/)?.[1] || '';
+
+    // Format date nicely
+    let date = pubDate;
+    try {
+      const d = new Date(pubDate);
+      date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+      // keep raw string if parsing fails
+    }
+
+    // Clean title — strip "Reading Ambitiously X.XX.XX - " prefix if present
+    const cleanTitle = title.replace(/^Reading Ambitiously\s+\d+[\.\-]\d+[\.\-]\d+\s*[-–—]\s*/, '');
+
+    return { title: cleanTitle, date, link };
+  });
+} catch (e) {
+  // Fallback if fetch fails at build time
+  editions = [
+    { date: 'Feb 27, 2026', title: 'Top 5 lessons learned vibe coding AmbitiousOS', link: 'https://www.readingambitiously.com' },
+    { date: 'Feb 20, 2026', title: 'Building AmbitiousOS v2 + Total Recall & Memory + AI Agents w/ Claude Code', link: 'https://www.readingambitiously.com' },
+    { date: 'Feb 13, 2026', title: 'You can just build things', link: 'https://www.readingambitiously.com' },
+    { date: 'Feb 6, 2026', title: 'Not all software is created equally', link: 'https://www.readingambitiously.com' },
+    { date: 'Jan 30, 2026', title: 'Building AmbitiousOS & AI Agents w/ Claude Code', link: 'https://www.readingambitiously.com' },
+  ];
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://ambitiousos.com' },
+    { '@type': 'ListItem', position: 2, name: 'Newsletter', item: 'https://ambitiousos.com/newsletter' },
+  ],
+};
+---
+
+<Base
+  title="Reading Ambitiously Newsletter — Weekly AI Intelligence"
+  description="Every Friday, Reading Ambitiously delivers curated AI research, big ideas, charts, and insights. Subscribe free."
+  jsonLd={jsonLd}
+>
+  <main class="section-padding">
+    <div class="max-w-3xl mx-auto">
+      <nav class="text-text-muted text-sm mb-8">
+        <a href="/" class="hover:text-text-primary transition-colors">Home</a>
+        <span class="mx-2">/</span>
+        <span class="text-text-secondary">Newsletter</span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
+        Reading Ambitiously
+      </h1>
+      <p class="text-text-secondary text-lg mb-8 leading-relaxed">
+        A free weekly newsletter delivering curated AI research, big ideas, charts, tweets, podcasts,
+        and quotes. Every edition is fed back into AmbitiousOS to make the platform smarter.
+      </p>
+
+      <a href="https://www.readingambitiously.com" class="btn-primary mb-12 inline-flex" target="_blank" rel="noopener noreferrer">
+        Subscribe free on Substack <span aria-hidden="true">&rarr;</span>
+      </a>
+
+      <h2 class="text-xl font-semibold text-text-primary mb-6">Recent editions</h2>
+      <div class="space-y-4">
+        {editions.map((ed) => (
+          <a
+            href={ed.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="glass-card p-5 flex items-center justify-between gap-4 group hover:border-accent/30 transition-colors block"
+          >
+            <div>
+              <span class="text-text-muted text-xs">{ed.date}</span>
+              <h3 class="text-text-primary font-medium group-hover:text-galaxy-sage transition-colors">
+                {ed.title}
+              </h3>
+            </div>
+            <span class="text-text-muted group-hover:text-text-primary transition-colors flex-shrink-0" aria-hidden="true">&rarr;</span>
+          </a>
+        ))}
+      </div>
+
+      <p class="text-text-muted text-sm mt-8">
+        <a href="https://www.readingambitiously.com/archive" class="underline hover:text-text-primary transition-colors" target="_blank" rel="noopener noreferrer">
+          View full archive on Substack &rarr;
+        </a>
+      </p>
+    </div>
+  </main>
+  <Footer />
+</Base>

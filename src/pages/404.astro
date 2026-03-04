@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import Starfield from '../components/Starfield.astro';
+import '../styles/global.css';
+---
+
+<Base
+  title="Lost in the Galaxy — AmbitiousOS"
+  description="This page doesn't exist. Let's get you back on track."
+>
+  <main class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <Starfield />
+
+    <div class="relative z-10 text-center px-6 py-20 max-w-lg">
+      <p class="text-6xl sm:text-8xl font-bold text-text-primary/20 mb-4">404</p>
+      <h1 class="text-2xl sm:text-3xl font-bold text-text-primary mb-4">
+        Lost in the galaxy
+      </h1>
+      <p class="text-text-secondary mb-8 leading-relaxed">
+        This page doesn't exist — but there's plenty to explore back at home base.
+      </p>
+      <a href="/" class="btn-primary">
+        Back to home <span aria-hidden="true">&rarr;</span>
+      </a>
+    </div>
+  </main>
+</Base>

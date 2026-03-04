@@ -1,0 +1,129 @@
+---
+import Base from '../layouts/Base.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  metaTitle: string;
+  metaDescription: string;
+  headline: string;
+  intro: string;
+  exampleQuestions: string[];
+  relatedTopics: { title: string; href: string }[];
+}
+
+const { title, metaTitle, metaDescription, headline, intro, exampleQuestions, relatedTopics } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://ambitiousos.com' },
+    { '@type': 'ListItem', position: 2, name: title, item: `https://ambitiousos.com${Astro.url.pathname}` },
+  ],
+};
+---
+
+<Base title={metaTitle} description={metaDescription} jsonLd={jsonLd}>
+  <main class="section-padding">
+    <div class="max-w-3xl mx-auto">
+      <nav class="text-text-muted text-sm mb-8">
+        <a href="/" class="hover:text-text-primary transition-colors">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/#features" class="hover:text-text-primary transition-colors">Topics</a>
+        <span class="mx-2">/</span>
+        <span class="text-text-secondary">{title}</span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl font-bold text-text-primary mb-6">{headline}</h1>
+
+      <div class="text-text-secondary text-base sm:text-lg leading-relaxed mb-10 space-y-4">
+        <p>{intro}</p>
+        <slot />
+      </div>
+
+      <!-- Example questions -->
+      <div class="glass-card p-6 sm:p-8 mb-10">
+        <h2 class="text-lg font-semibold text-text-primary mb-4">Ask AmbitiousOS about this</h2>
+        <ul class="space-y-3">
+          {exampleQuestions.map((q) => (
+            <li class="flex items-start gap-3">
+              <span class="text-galaxy-teal flex-shrink-0 mt-1">?</span>
+              <span class="text-text-secondary text-sm sm:text-base">&ldquo;{q}&rdquo;</span>
+            </li>
+          ))}
+        </ul>
+        <a href="https://os.readingambitiously.com" class="btn-primary mt-6 inline-flex text-sm">
+          Try it in AmbitiousOS <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+
+      <!-- Related topics -->
+      <div>
+        <h2 class="text-lg font-semibold text-text-primary mb-4">Related topics</h2>
+        <div class="flex flex-wrap gap-3">
+          {relatedTopics.map((t) => (
+            <a href={t.href} class="glass-card px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors">
+              {t.title}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Topic email capture -->
+      <div class="mt-12 glass-card p-6 sm:p-8 text-center">
+        <p class="text-text-primary font-medium mb-1">Get weekly insights on {title.toLowerCase()}</p>
+        <p class="text-text-muted text-sm mb-4">Subscribe free — new edition every Friday.</p>
+        <form
+          action="https://www.readingambitiously.com/api/v1/free?nojs=true"
+          method="post"
+          target="_blank"
+          class="max-w-sm mx-auto"
+        >
+          <input type="hidden" name="first_url" value={`https://ambitiousos.com${Astro.url.pathname}`} />
+          <input type="hidden" name="first_referrer" value="" />
+          <input type="hidden" name="current_url" value={`https://ambitiousos.com${Astro.url.pathname}`} />
+          <input type="hidden" name="current_referrer" value="" />
+          <div class="flex gap-2">
+            <input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              required
+              class="topic-email-input"
+              aria-label="Email address for newsletter"
+            />
+            <button type="submit" class="btn-primary whitespace-nowrap text-sm py-2.5 px-4" onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'topic',type:'subscribe'}})">
+              Subscribe
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .topic-email-input {
+    flex: 1;
+    padding: 0.625rem 0.875rem;
+    background: rgba(30, 28, 23, 0.8);
+    border: 1px solid rgba(238, 228, 219, 0.12);
+    border-radius: 10px;
+    color: #eee4db;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .topic-email-input::placeholder {
+    color: #666;
+  }
+
+  .topic-email-input:focus {
+    border-color: rgba(2, 69, 54, 0.5);
+    box-shadow: 0 0 0 3px rgba(2, 69, 54, 0.15);
+  }
+</style>
