@@ -40,13 +40,25 @@ try {
     // Strip "Reading Ambitiously X.XX.XX - " prefix
     const cleanTitle = title.replace(/^Reading Ambitiously\s+\d+[\.\-]\d+[\.\-]\d+\s*[-–—]\s*/, '');
 
+    // Decode HTML entities (RSS feeds contain numeric entities like &#8217;)
+    const decodeEntities = (str: string) => str
+      .replace(/&#(\d+);/g, (_, num) => String.fromCharCode(Number(num)))
+      .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'");
+
+    const decodedTitle = decodeEntities(cleanTitle);
+
     // Truncate description to ~150 chars
-    let excerpt = description.replace(/<[^>]+>/g, '').trim();
+    let excerpt = decodeEntities(description.replace(/<[^>]+>/g, '').trim());
     if (excerpt.length > 150) {
       excerpt = excerpt.slice(0, 150).replace(/\s+\S*$/, '') + '…';
     }
 
-    return { title: cleanTitle, date, link, description: excerpt, image };
+    return { title: decodedTitle, date, link, description: excerpt, image };
   });
 } catch {
   fetchFailed = true;

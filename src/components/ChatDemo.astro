@@ -1,0 +1,750 @@
+---
+---
+
+<div class="chat-demo">
+  <div class="demo-left">
+    <p class="demo-label">Try asking your Chief AI Officer</p>
+    <div class="demo-pills">
+      <button class="demo-pill" data-demo-q="q1">&ldquo;What are the biggest ideas from the last 5 editions?&rdquo;</button>
+      <button class="demo-pill" data-demo-q="q2">&ldquo;Explain context engineering like I&rsquo;m new to AI&rdquo;</button>
+      <button class="demo-pill" data-demo-q="q3">&ldquo;How is AI reshaping enterprise SaaS moats and pricing?&rdquo;</button>
+      <button class="demo-pill" data-demo-q="q4">&ldquo;Compare the Anthropic vs OpenAI coverage across editions&rdquo;</button>
+      <button class="demo-pill" data-demo-q="q5">&ldquo;What does Jack mean by high-agency teams?&rdquo;</button>
+      <button class="demo-pill" data-demo-q="q6">&ldquo;What patterns connect AI, Jevons Paradox, and enterprise adoption?&rdquo;</button>
+    </div>
+  </div>
+
+  <div class="demo-chat-window">
+    <div class="demo-chat-header">
+      <img src="/ra-bug.webp" alt="" class="demo-header-avatar" width="20" height="20" />
+      <span>Ask AmbitiousOS</span>
+    </div>
+    <div class="demo-chat-messages">
+      <div class="demo-msg demo-msg-assistant demo-idle-state">
+        <img src="/ra-bug.webp" alt="" class="demo-assistant-avatar" width="24" height="24" />
+        <div class="demo-response demo-streaming"></div>
+      </div>
+    </div>
+    <div class="demo-chat-input">
+      <div class="demo-input-field" aria-hidden="true">Ask a question...</div>
+      <span class="demo-input-hint">&#9166; Enter to send</span>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  .chat-demo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .chat-demo .demo-label {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: #888;
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+
+  .chat-demo .demo-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .chat-demo .demo-pill {
+    display: block;
+    padding: 0.5rem 1rem;
+    background: rgba(30, 28, 23, 0.8);
+    border: 1px solid rgba(238, 228, 219, 0.08);
+    border-radius: 12px;
+    font-size: 0.8125rem;
+    color: #aaa;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    font-family: inherit;
+    line-height: 1.4;
+    text-align: left;
+  }
+
+  .chat-demo .demo-pill:hover {
+    border-color: rgba(2, 69, 54, 0.4);
+    color: #ccc;
+    background: rgba(2, 69, 54, 0.08);
+  }
+
+  .chat-demo .demo-pill.is-active {
+    border-color: rgba(2, 69, 54, 0.6);
+    color: #eee;
+    background: rgba(2, 69, 54, 0.15);
+  }
+
+  /* Chat window — always visible */
+  .chat-demo .demo-chat-window {
+    background: #16140f;
+    border: 1px solid #2e2b24;
+    border-radius: 8px;
+  }
+
+  .chat-demo .demo-chat-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #2e2b24;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #eee4db;
+  }
+
+  .chat-demo .demo-header-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+  }
+
+  /* Messages area */
+  .chat-demo .demo-chat-messages {
+    background: #0c0b09;
+    border-radius: 6px;
+    margin: 0.5rem;
+    padding: 1rem;
+    min-height: 280px;
+    max-height: 350px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .chat-demo .demo-chat-messages::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chat-demo .demo-idle-state {
+    animation: none;
+  }
+
+  /* User message */
+  .chat-demo .demo-msg-user {
+    background: rgba(2, 69, 54, 0.15);
+    border-radius: 12px 12px 4px 12px;
+    padding: 0.75rem 1rem;
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #eee4db;
+    text-align: right;
+    animation: demo-fadeIn 0.3s ease;
+  }
+
+  /* Assistant message */
+  .chat-demo .demo-msg-assistant {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: flex-start;
+    animation: demo-fadeIn 0.3s ease;
+  }
+
+  .chat-demo .demo-assistant-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .chat-demo .demo-response {
+    font-size: 0.875rem;
+    color: #d4cdc4;
+    line-height: 1.6;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .chat-demo .demo-response p {
+    margin: 0 0 0.5rem;
+  }
+
+  .chat-demo .demo-response p:last-child {
+    margin-bottom: 0;
+  }
+
+  .chat-demo .demo-response strong {
+    color: #eee4db;
+    font-weight: 600;
+  }
+
+  .chat-demo .demo-response em {
+    font-style: italic;
+    color: #bbb;
+  }
+
+  .chat-demo .demo-response code {
+    background: rgba(238, 228, 219, 0.06);
+    padding: 0.125rem 0.375rem;
+    border-radius: 3px;
+    font-size: 0.8125rem;
+    font-family: monospace;
+  }
+
+  .chat-demo .demo-response ul,
+  .chat-demo .demo-response ol {
+    margin: 0.5rem 0;
+    padding-left: 1.25rem;
+  }
+
+  .chat-demo .demo-response li {
+    margin-bottom: 0.375rem;
+    line-height: 1.5;
+  }
+
+  .chat-demo .demo-response blockquote {
+    border-left: 3px solid #2a7a5a;
+    padding: 0.5rem 0 0.5rem 0.75rem;
+    margin: 0.5rem 0;
+    color: #bbb;
+    font-style: italic;
+  }
+
+  /* Thinking timeline */
+  .chat-demo .demo-thinking {
+    margin-bottom: 1rem;
+    animation: demo-fadeIn 0.3s ease;
+  }
+
+  .chat-demo .demo-thinking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .chat-demo .demo-thinking-label {
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .chat-demo .demo-live-badge {
+    font-size: 0.625rem;
+    color: #2a7a5a;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    animation: demo-pulse 1.5s ease-in-out infinite;
+  }
+
+  .chat-demo .demo-steps-list {
+    border-left: 2px solid #2e2b24;
+    margin-left: 4px;
+    padding-left: 12px;
+  }
+
+  .chat-demo .demo-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    font-size: 0.8125rem;
+    color: #999;
+    animation: demo-slideIn 0.3s ease;
+  }
+
+  .chat-demo .demo-step-indicator {
+    width: 12px;
+    text-align: center;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    line-height: 1;
+  }
+
+  .chat-demo .demo-step-indicator::before {
+    content: '\25CF';
+    color: #2a7a5a;
+    text-shadow: 0 0 6px rgba(42, 122, 90, 0.5);
+    animation: demo-glow 1.5s ease-in-out infinite;
+  }
+
+  .chat-demo .demo-step.is-done .demo-step-indicator::before {
+    content: '\2713';
+    text-shadow: none;
+    animation: none;
+  }
+
+  /* Typing dots */
+  .chat-demo .demo-typing-dots {
+    display: flex;
+    gap: 4px;
+    padding: 0.5rem 0;
+    margin-bottom: 0.5rem;
+  }
+
+  .chat-demo .demo-typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #666;
+    animation: demo-dotBounce 1.2s ease-in-out infinite;
+  }
+
+  .chat-demo .demo-typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .chat-demo .demo-typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  /* Streaming cursor */
+  .chat-demo .demo-streaming::after {
+    content: '\2588';
+    color: #2a7a5a;
+    animation: demo-blink 0.6s step-end infinite;
+    font-size: 0.875rem;
+  }
+
+  /* Decorative input */
+  .chat-demo .demo-chat-input {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem 0.75rem;
+    border-top: 1px solid #2e2b24;
+  }
+
+  .chat-demo .demo-input-field {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: rgba(30, 28, 23, 0.6);
+    border: 1px solid rgba(238, 228, 219, 0.06);
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    color: #555;
+    pointer-events: none;
+  }
+
+  .chat-demo .demo-input-hint {
+    font-size: 0.6875rem;
+    color: #444;
+    white-space: nowrap;
+  }
+
+  /* Animations */
+  @keyframes demo-fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes demo-slideIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes demo-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  @keyframes demo-glow {
+    0%, 100% { text-shadow: 0 0 6px rgba(42, 122, 90, 0.5); }
+    50% { text-shadow: 0 0 12px rgba(42, 122, 90, 0.8); }
+  }
+
+  @keyframes demo-dotBounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+  }
+
+  @keyframes demo-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .chat-demo .demo-msg-user,
+    .chat-demo .demo-msg-assistant,
+    .chat-demo .demo-thinking,
+    .chat-demo .demo-step {
+      animation: none;
+    }
+    .chat-demo .demo-live-badge,
+    .chat-demo .demo-step-indicator::before,
+    .chat-demo .demo-typing-dots span,
+    .chat-demo .demo-streaming::after {
+      animation: none;
+    }
+  }
+
+  /* Mobile — stack vertically */
+  @media (max-width: 767px) {
+    .chat-demo {
+      grid-template-columns: 1fr;
+    }
+    .chat-demo .demo-label {
+      text-align: center;
+    }
+    .chat-demo .demo-pills {
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .chat-demo .demo-pill {
+      border-radius: 9999px;
+    }
+    .chat-demo .demo-chat-messages {
+      max-height: 300px;
+    }
+    .chat-demo .demo-input-hint {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    const root = document.querySelector('.chat-demo');
+    if (!root) return;
+
+    const messagesArea = root.querySelector('.demo-chat-messages');
+    const pills = root.querySelectorAll('.demo-pill');
+
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    let controller = null;
+    let activeConvId = null;
+
+    const demoData = {
+      q1: {
+        question: 'What are the biggest ideas from the last 5 editions?',
+        steps: [
+          'Searching across recent editions',
+          'Extracting recurring themes and key concepts',
+          'Ranking ideas by frequency and depth of coverage',
+        ],
+        response:
+          'Across the last five editions, several big ideas keep resurfacing:\n\n1. **Context engineering** is replacing "prompt engineering" as the real skill \u2014 it\'s about giving AI the right information at the right time, not just clever prompts\n2. **AI agents are moving from demos to production** \u2014 companies are shipping autonomous workflows that actually work in enterprise settings\n3. **The "vibe coding" movement** is redefining who can build software \u2014 non-engineers are shipping real products using AI coding tools\n4. **Enterprise AI adoption is accelerating non-linearly** \u2014 as AI gets cheaper, total usage explodes rather than plateaus\n5. **The moat is shifting from software to data** \u2014 traditional SaaS defensibility is eroding as AI makes building easy but domain expertise stays hard\n\nThese aren\'t isolated trends \u2014 they\'re facets of the same underlying shift in how we build, think, and compete.',
+      },
+      q2: {
+        question: "Explain context engineering like I'm new to AI",
+        steps: [
+          'Retrieving coverage of context engineering',
+          'Finding the most accessible explanations',
+          'Synthesizing a beginner-friendly summary',
+        ],
+        response:
+          'Think of it this way: when you ask a colleague for help, you don\'t just blurt out a question \u2014 you give them **background**. "Here\'s the project brief, here\'s what we\'ve tried, here\'s the constraint."\n\n**Context engineering** works the same way with AI. It\'s the practice of designing what information an AI system receives \u2014 and when \u2014 so it produces the best possible output. This goes beyond "prompt engineering" to include:\n\n- **What documents** the AI can reference\n- **What history** it remembers from prior conversations\n- **What tools** it can call to look things up in real time\n\nThe key insight: the companies winning with AI aren\'t writing better prompts \u2014 they\'re building better *information architectures* around their models. Context is the new code.',
+      },
+      q3: {
+        question: 'How is AI reshaping enterprise SaaS moats and pricing?',
+        steps: [
+          'Searching for SaaS, moats, and pricing analysis',
+          'Cross-referencing with enterprise AI coverage',
+          'Compiling competitive dynamics and trends',
+        ],
+        response:
+          'AI is fundamentally **dissolving traditional SaaS moats** while creating new ones:\n\n**What\'s eroding:**\n- **Feature moats** \u2014 AI makes it trivial to replicate most software features in weeks\n- **UI/UX differentiation** \u2014 AI-generated interfaces reduce design as a defensible advantage\n- **Integration complexity** \u2014 AI agents bridge systems that used to require expensive middleware\n\n**What\'s emerging:**\n- **Data network effects** \u2014 proprietary, high-quality datasets create durable advantages\n- **Workflow embedding** \u2014 winners aren\'t selling tools, they\'re becoming invisible infrastructure\n- **Compound AI systems** \u2014 orchestrated multi-model architectures create system-level defensibility\n\nOn pricing, the shift is toward **outcome-based models** \u2014 charging per successful result rather than per seat. This aligns vendor incentives with customer value in a way subscription pricing never could.',
+      },
+      q4: {
+        question:
+          'Compare the Anthropic vs OpenAI coverage across editions',
+        steps: [
+          'Retrieving all Anthropic mentions across editions',
+          'Retrieving all OpenAI mentions across editions',
+          'Building comparative analysis',
+        ],
+        response:
+          'Both companies feature heavily across the archive, but the coverage reveals different narratives:\n\n**Anthropic** is covered through the lens of *responsible scaling* and craft:\n- Claude\'s evolution into a genuine **coding partner**\n- Constitutional AI and the model spec approach to safety\n- Claude Code and the **agentic coding** paradigm\n\n**OpenAI** coverage focuses on *ecosystem and platform dynamics*:\n- The GPT Store and marketplace strategy\n- Rapid iteration from GPT-4 to o1 to o3 \u2014 the **reasoning model** race\n- Enterprise partnerships and the battle for distribution\n\nThe interesting pattern: the analysis frames Anthropic as the **"craftsman" building the best models** and OpenAI as the **"platform player" building the biggest ecosystem**. Both strategies have merit, but the craft approach may age better as models commoditize.',
+      },
+      q5: {
+        question: 'What does Jack mean by high-agency teams?',
+        steps: [
+          "Searching for 'high-agency' across all content",
+          'Finding definitional context and examples',
+          'Extracting the core framework',
+        ],
+        response:
+          "High-agency teams are groups that **don't wait for permission to solve problems**. This concept appears frequently in the context of teams getting outsized results with AI:\n\n> \"High-agency isn't about being reckless. It's about having the bias toward action, the skill to execute, and the judgment to know when to move fast versus when to pause.\"\n\nKey characteristics:\n- **They adopt tools before mandated** \u2014 using AI assistants months before IT approved them\n- **They redefine their own roles** \u2014 marketers who build internal tools, PMs who automate their reporting\n- **They compound learning** \u2014 each experiment feeds the next, creating a flywheel passive teams can't match\n\nThe core insight: AI amplifies agency. A high-agency individual with AI tools can now do what used to require a full team \u2014 making **hiring for agency more important than hiring for any specific skill**.",
+      },
+      q6: {
+        question:
+          'What patterns connect AI, Jevons Paradox, and enterprise adoption?',
+        steps: [
+          'Searching for Jevons Paradox coverage',
+          'Cross-referencing with enterprise adoption patterns',
+          'Synthesizing the connecting framework',
+        ],
+        response:
+          "This is one of the most powerful mental models in the archive. **Jevons Paradox** \u2014 the observation that making a resource more efficient *increases* total consumption \u2014 maps perfectly onto enterprise AI adoption.\n\nThe pattern works at three levels:\n\n1. **Cost:** As inference prices drop (90%+ in 18 months), companies don't just do the same things cheaper \u2014 they find *entirely new uses*. A query that cost $0.50 was reserved for high-value tasks. At $0.01, it gets embedded everywhere.\n2. **Capability:** Each leap in model quality doesn't just improve existing use cases \u2014 it *unlocks categories that weren't feasible before*.\n3. **Adoption:** As early teams demonstrate ROI, budget flows toward AI initiatives, creating a **compounding curve** rather than a linear one.\n\nThe implication: companies planning for \"gradual AI adoption\" are underestimating demand. The winners are building infrastructure for **10x their current AI usage**.",
+      },
+    };
+
+    function delay(ms, signal) {
+      if (prefersReducedMotion) ms = 0;
+      return new Promise((resolve, reject) => {
+        if (signal && signal.aborted) {
+          reject(new DOMException('Aborted', 'AbortError'));
+          return;
+        }
+        const timer = setTimeout(resolve, ms);
+        if (signal) {
+          signal.addEventListener(
+            'abort',
+            () => {
+              clearTimeout(timer);
+              reject(new DOMException('Aborted', 'AbortError'));
+            },
+            { once: true }
+          );
+        }
+      });
+    }
+
+    function inlineMarkdown(text) {
+      return text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`(.+?)`/g, '<code>$1</code>');
+    }
+
+    function markdownToHtml(md) {
+      var lines = md.split('\n');
+      var html = '';
+      var inUl = false;
+      var inOl = false;
+      var inBlockquote = false;
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+
+        // Blockquote
+        if (line.startsWith('> ')) {
+          if (inUl) { html += '</ul>'; inUl = false; }
+          if (inOl) { html += '</ol>'; inOl = false; }
+          if (!inBlockquote) { html += '<blockquote>'; inBlockquote = true; }
+          html += '<p>' + inlineMarkdown(line.slice(2)) + '</p>';
+          continue;
+        } else if (inBlockquote) {
+          html += '</blockquote>';
+          inBlockquote = false;
+        }
+
+        // Unordered list
+        if (/^- /.test(line)) {
+          if (inOl) { html += '</ol>'; inOl = false; }
+          if (!inUl) { html += '<ul>'; inUl = true; }
+          html += '<li>' + inlineMarkdown(line.slice(2)) + '</li>';
+          continue;
+        } else if (inUl) {
+          html += '</ul>';
+          inUl = false;
+        }
+
+        // Ordered list
+        var olMatch = line.match(/^\d+\.\s/);
+        if (olMatch) {
+          if (inUl) { html += '</ul>'; inUl = false; }
+          if (!inOl) { html += '<ol>'; inOl = true; }
+          html += '<li>' + inlineMarkdown(line.slice(olMatch[0].length)) + '</li>';
+          continue;
+        } else if (inOl) {
+          html += '</ol>';
+          inOl = false;
+        }
+
+        // Empty line
+        if (line.trim() === '') continue;
+
+        // Paragraph
+        html += '<p>' + inlineMarkdown(line) + '</p>';
+      }
+
+      if (inUl) html += '</ul>';
+      if (inOl) html += '</ol>';
+      if (inBlockquote) html += '</blockquote>';
+
+      return html;
+    }
+
+    async function streamText(container, html, signal) {
+      container.innerHTML = html;
+
+      var textNodes = [];
+      var walker = document.createTreeWalker(
+        container,
+        NodeFilter.SHOW_TEXT,
+        null
+      );
+      var node;
+      while ((node = walker.nextNode())) {
+        textNodes.push({ node: node, fullText: node.textContent });
+        node.textContent = '';
+      }
+
+      var chunkSize = prefersReducedMotion ? 100 : 3;
+      var chunkDelay = prefersReducedMotion ? 0 : 18;
+      var prevParent = null;
+
+      for (var t = 0; t < textNodes.length; t++) {
+        var entry = textNodes[t];
+        if (prevParent) prevParent.classList.remove('demo-streaming');
+        entry.node.parentNode.classList.add('demo-streaming');
+        prevParent = entry.node.parentNode;
+
+        for (var c = 0; c < entry.fullText.length; c += chunkSize) {
+          if (signal && signal.aborted)
+            throw new DOMException('Aborted', 'AbortError');
+          entry.node.textContent = entry.fullText.substring(
+            0,
+            Math.min(c + chunkSize, entry.fullText.length)
+          );
+          messagesArea.scrollTop = messagesArea.scrollHeight;
+          await delay(chunkDelay, signal);
+        }
+        entry.node.textContent = entry.fullText;
+      }
+
+      if (prevParent) prevParent.classList.remove('demo-streaming');
+    }
+
+    async function runDemo(id) {
+      if (id === activeConvId) return;
+
+      // Abort previous animation
+      if (controller) controller.abort();
+      controller = new AbortController();
+      var signal = controller.signal;
+
+      activeConvId = id;
+
+      // Highlight active pill
+      pills.forEach(function (p) {
+        p.classList.toggle('is-active', p.dataset.demoQ === id);
+      });
+
+      // Clear messages
+      messagesArea.innerHTML = '';
+
+      var conv = demoData[id];
+
+      try {
+        // Brief pause before animation starts
+        await delay(200, signal);
+
+        // User message
+        var userMsg = document.createElement('div');
+        userMsg.className = 'demo-msg demo-msg-user';
+        userMsg.textContent = conv.question;
+        messagesArea.appendChild(userMsg);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+
+        await delay(600, signal);
+
+        // Thinking timeline
+        var thinking = document.createElement('div');
+        thinking.className = 'demo-thinking';
+        thinking.innerHTML =
+          '<div class="demo-thinking-header">' +
+          '<span class="demo-thinking-label">Ambitiously thinking</span>' +
+          '<span class="demo-live-badge">LIVE</span>' +
+          '</div>' +
+          '<div class="demo-steps-list"></div>';
+        messagesArea.appendChild(thinking);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+
+        var stepsList = thinking.querySelector('.demo-steps-list');
+
+        await delay(800, signal);
+
+        // Show steps one by one
+        for (var s = 0; s < conv.steps.length; s++) {
+          var step = document.createElement('div');
+          step.className = 'demo-step';
+          step.innerHTML =
+            '<span class="demo-step-indicator"></span>' +
+            '<span class="demo-step-text">' + conv.steps[s] + '</span>';
+          stepsList.appendChild(step);
+          messagesArea.scrollTop = messagesArea.scrollHeight;
+
+          await delay(800, signal);
+
+          // Mark as done
+          step.classList.add('is-done');
+
+          // Shorter delay before last step check
+          if (s < conv.steps.length - 1) {
+            await delay(s === conv.steps.length - 2 ? 400 : 0, signal);
+          }
+        }
+
+        // Remove LIVE badge
+        var liveBadge = thinking.querySelector('.demo-live-badge');
+        if (liveBadge) liveBadge.remove();
+
+        await delay(300, signal);
+
+        // Typing dots
+        var dotsDiv = document.createElement('div');
+        dotsDiv.className = 'demo-typing-dots';
+        dotsDiv.innerHTML = '<span></span><span></span><span></span>';
+        messagesArea.appendChild(dotsDiv);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+
+        await delay(800, signal);
+
+        // Remove dots, show response
+        dotsDiv.remove();
+
+        var assistantMsg = document.createElement('div');
+        assistantMsg.className = 'demo-msg demo-msg-assistant';
+
+        var avatar = document.createElement('img');
+        avatar.src = '/ra-bug.webp';
+        avatar.alt = '';
+        avatar.className = 'demo-assistant-avatar';
+        avatar.width = 24;
+        avatar.height = 24;
+
+        var content = document.createElement('div');
+        content.className = 'demo-response';
+
+        assistantMsg.appendChild(avatar);
+        assistantMsg.appendChild(content);
+        messagesArea.appendChild(assistantMsg);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+
+        // Stream the response
+        var responseHtml = markdownToHtml(conv.response);
+        await streamText(content, responseHtml, signal);
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+        throw e;
+      }
+    }
+
+    // Attach click handlers
+    pills.forEach(function (pill) {
+      pill.addEventListener('click', function () {
+        var id = pill.dataset.demoQ;
+
+        // Plausible tracking
+        if (typeof window.plausible === 'function') {
+          window.plausible('Chat Demo Click', {
+            props: { question: demoData[id] ? demoData[id].question : id },
+          });
+        }
+
+        runDemo(id);
+      });
+    });
+  })();
+</script>

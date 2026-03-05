@@ -1,5 +1,6 @@
 ---
 import AccessRequestForm from './AccessRequestForm.astro';
+import ChatDemo from './ChatDemo.astro';
 
 const features = [
   {
@@ -23,15 +24,6 @@ const features = [
     description: 'Every edition feeds back into the system. AmbitiousOS gets smarter every single week.',
   },
 ];
-
-const examplePrompts = [
-  'What are the biggest ideas from the last 5 editions?',
-  'Explain context engineering like I\'m new to AI',
-  'How is AI reshaping enterprise SaaS moats and pricing?',
-  'Compare the Anthropic vs OpenAI coverage across editions',
-  'What does Jack mean by high-agency teams?',
-  'What patterns connect AI, Jevons Paradox, and enterprise adoption?',
-];
 ---
 
 <section class="section-padding" id="features">
@@ -54,17 +46,8 @@ const examplePrompts = [
       ))}
     </div>
 
-    <!-- Example prompts -->
-    <div class="max-w-2xl mx-auto">
-      <p class="text-text-muted text-sm text-center mb-4 uppercase tracking-wider font-medium">
-        Try asking your Chief AI Officer
-      </p>
-      <div class="flex flex-wrap justify-center gap-3">
-        {examplePrompts.map((prompt) => (
-          <span class="prompt-chip">&ldquo;{prompt}&rdquo;</span>
-        ))}
-      </div>
-    </div>
+    <!-- Interactive chat demo -->
+    <ChatDemo />
 
     <div class="text-center mt-10">
       <button type="button" class="btn-primary" data-open-form="features-access-form" onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'features',type:'request-access'}})">
@@ -79,15 +62,3 @@ const examplePrompts = [
   </div>
 </section>
 
-<style>
-  .prompt-chip {
-    display: inline-block;
-    padding: 0.5rem 1rem;
-    background: rgba(30, 28, 23, 0.8);
-    border: 1px solid rgba(238, 228, 219, 0.08);
-    border-radius: 9999px;
-    font-size: 0.8125rem;
-    color: #aaa;
-    white-space: nowrap;
-  }
-</style>
