@@ -204,6 +204,16 @@ const urgencyText = dayOfWeek === 5
                 rel="noopener noreferrer"
                 class="glass-card p-5 group hover:border-accent/30 transition-colors block"
               >
+                {ed.image && (
+                  <div class="recent-image-wrap mb-3">
+                    <img
+                      src={ed.image}
+                      alt={ed.title}
+                      class="recent-image"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
                 <span class="text-text-muted text-xs">{ed.date}</span>
                 <h4 class="text-text-primary font-medium group-hover:text-galaxy-sage transition-colors mt-1 leading-snug">
                   {ed.title}
@@ -275,8 +285,8 @@ const urgencyText = dayOfWeek === 5
   }
 
   .featured-image-wrap {
-    width: 200px;
-    height: 200px;
+    width: 280px;
+    aspect-ratio: 16 / 10;
     border-radius: 12px;
     overflow: hidden;
   }
@@ -285,14 +295,30 @@ const urgencyText = dayOfWeek === 5
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center top;
     border-radius: 12px;
   }
 
   @media (max-width: 639px) {
     .featured-image-wrap {
       width: 100%;
-      height: 180px;
+      aspect-ratio: 16 / 9;
     }
+  }
+
+  .recent-image-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .recent-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 8px;
   }
 
   /* Urgency badge */
