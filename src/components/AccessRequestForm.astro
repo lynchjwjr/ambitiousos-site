@@ -41,6 +41,12 @@ const { id, inline = false } = Astro.props;
 
     <p class="access-form-status" data-form-status></p>
   </form>
+
+  <div class="access-form-success" data-form-success hidden>
+    <div class="success-checkmark">&#10003;</div>
+    <p class="success-heading">You're on the list!</p>
+    <p class="success-subtext">We'll reach out soon with your access details.</p>
+  </div>
 </div>
 
 <style>
@@ -95,6 +101,43 @@ const { id, inline = false } = Astro.props;
     color: #e05555;
   }
 
+  .access-form-success {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    animation: fadeInUp 0.4s ease;
+  }
+
+  .success-checkmark {
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto 1rem;
+    background: rgba(2, 69, 54, 0.3);
+    border: 2px solid #024536;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #5cb85c;
+  }
+
+  .success-heading {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #eee4db;
+    margin-bottom: 0.25rem;
+  }
+
+  .success-subtext {
+    font-size: 0.9375rem;
+    color: #999;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   @media (max-width: 639px) {
     .access-form-fields {
       flex-direction: column;
@@ -136,9 +179,10 @@ const { id, inline = false } = Astro.props;
         });
 
         if (res.ok) {
-          status.textContent = 'Request sent! We\'ll be in touch soon.';
-          status.classList.add('success');
-          f.reset();
+          const wrapper = f.closest('.access-form-wrapper') as HTMLElement;
+          const successEl = wrapper?.querySelector('[data-form-success]') as HTMLElement;
+          f.hidden = true;
+          if (successEl) successEl.hidden = false;
           if (typeof (window as any).plausible === 'function') {
             (window as any).plausible('Access Request Submitted', { props: { source: f.closest('[id]')?.id || 'unknown' } });
           }
