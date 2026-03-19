@@ -12,11 +12,19 @@ export async function getStaticPaths() {
   const apiBase = 'https://ra-os-api.fly.dev';
   let entities: { slug: string; name: string; type: string; mention_count: number; edition_count: number }[] = [];
 
-  try {
-    const res = await fetch(`${apiBase}/api/graph/entities`);
-    if (res.ok) entities = await res.json();
-  } catch (e) {
-    console.warn('Failed to fetch entities for static paths:', e);
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(`${apiBase}/api/graph/entities`, { signal: AbortSignal.timeout(30_000) });
+      if (res.ok) {
+        entities = await res.json();
+        console.log(`[explore/slug] Fetched ${entities.length} entities (attempt ${attempt})`);
+        break;
+      }
+      console.warn(`[explore/slug] entities returned ${res.status} (attempt ${attempt}/3)`);
+    } catch (e) {
+      console.warn(`[explore/slug] entities fetch failed (attempt ${attempt}/3):`, e);
+    }
+    if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
   }
 
   return entities.map((entity) => ({

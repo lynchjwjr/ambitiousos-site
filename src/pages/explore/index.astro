@@ -26,12 +26,29 @@ let stats: Stats | null = null;
 
 const API_BASE = 'https://ra-os-api.fly.dev';
 
+async function fetchWithRetry(url: string, retries = 3): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
+      if (res.ok) return res;
+      console.warn(`[explore] ${url} returned ${res.status} (attempt ${i + 1}/${retries})`);
+    } catch (e) {
+      console.warn(`[explore] ${url} failed (attempt ${i + 1}/${retries}):`, e);
+    }
+    if (i < retries - 1) await new Promise(r => setTimeout(r, 2000));
+  }
+  return new Response('[]', { status: 503 });
+}
+
 try {
   const [entitiesRes, statsRes] = await Promise.all([
-    fetch(`${API_BASE}/api/graph/entities`),
-    fetch(`${API_BASE}/api/graph/stats`),
+    fetchWithRetry(`${API_BASE}/api/graph/entities`),
+    fetchWithRetry(`${API_BASE}/api/graph/stats`),
   ]);
-  if (entitiesRes.ok) entities = await entitiesRes.json();
+  if (entitiesRes.ok) {
+    entities = await entitiesRes.json();
+    console.log(`[explore] Fetched ${entities.length} entities`);
+  }
   if (statsRes.ok) stats = await statsRes.json();
 } catch (e) {
   console.warn('Failed to fetch entity data for explore hub:', e);
