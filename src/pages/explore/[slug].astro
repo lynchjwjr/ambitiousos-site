@@ -86,7 +86,10 @@ const editionCount = detail?.edition_count || entity.edition_count;
 const aliases = detail?.aliases || [];
 const sourceTypes = detail?.source_types || [];
 const coOccurring = detail?.co_occurring || [];
-const excerpts = detail?.chunk_excerpts?.slice(0, 3) || [];
+const excerpts = (detail?.chunk_excerpts?.slice(0, 3) || []).map(ex => ({
+  ...ex,
+  editionSlug: ex.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+}));
 
 // Connected entities (exclude self)
 const connected = neighbors.nodes
@@ -297,12 +300,12 @@ const relatedTopics = topicMap[type] || [];
           </h2>
           <div class="space-y-4">
             {excerpts.map((ex) => (
-              <div class="excerpt-card">
+              <a href={`/editions/${ex.editionSlug}`} class="excerpt-card block">
                 <p class="text-text-muted text-xs mb-1">{ex.title}</p>
                 <p class="text-text-secondary text-sm leading-relaxed">
-                  {ex.text.replace(/[#*!\[\]()]/g, '').slice(0, 200)}...
+                  {ex.text.replace(/https?:\/\/\S+/g, '').replace(/[#*!\[\]()]/g, '').replace(/\s{2,}/g, ' ').trim().slice(0, 200)}...
                 </p>
-              </div>
+              </a>
             ))}
           </div>
         </div>
@@ -451,6 +454,12 @@ const relatedTopics = topicMap[type] || [];
   .excerpt-card {
     padding-bottom: 1rem;
     border-bottom: 1px solid rgba(238, 228, 219, 0.04);
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .excerpt-card:hover {
+    border-color: rgba(2, 69, 54, 0.3);
   }
 
   .excerpt-card:last-child {
