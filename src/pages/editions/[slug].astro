@@ -1,0 +1,183 @@
+---
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ScrollCTA from '../../components/ScrollCTA.astro';
+import AccessRequestForm from '../../components/AccessRequestForm.astro';
+import '../../styles/global.css';
+import { fetchAllEditions } from '../../lib/editions';
+import type { Edition } from '../../lib/editions';
+
+export async function getStaticPaths() {
+  const editions = await fetchAllEditions();
+
+  return editions.map((ed) => ({
+    params: { slug: ed.slug },
+    props: { edition: ed },
+  }));
+}
+
+const { edition } = Astro.props as { edition: Edition };
+const { slug } = Astro.params;
+
+const articleLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: edition.cleanTitle,
+  ...(edition.isoDate ? { datePublished: edition.isoDate } : {}),
+  author: { '@type': 'Person', name: 'Jack Lynch' },
+  publisher: { '@type': 'Organization', name: 'Reading Ambitiously' },
+  description: edition.description,
+  url: `https://ambitiousos.com/editions/${slug}`,
+  mainEntityOfPage: edition.link,
+  ...(edition.image ? { image: { '@type': 'ImageObject', url: edition.image } } : {}),
+};
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://ambitiousos.com' },
+    { '@type': 'ListItem', position: 2, name: 'Editions', item: 'https://ambitiousos.com/editions' },
+    { '@type': 'ListItem', position: 3, name: edition.cleanTitle, item: `https://ambitiousos.com/editions/${slug}` },
+  ],
+};
+
+const truncatedBreadcrumb = edition.cleanTitle.length > 40
+  ? edition.cleanTitle.slice(0, 40) + '…'
+  : edition.cleanTitle;
+---
+
+<Base
+  title={`${edition.cleanTitle} — Reading Ambitiously`}
+  description={edition.description || `Read this edition of Reading Ambitiously, the weekly AI intelligence newsletter.`}
+  canonicalUrl={edition.link}
+  ogImage={edition.image || '/og-image.jpg'}
+  jsonLd={{ '@context': 'https://schema.org', '@graph': [articleLd, breadcrumbLd] }}
+>
+  <Header />
+  <main class="section-padding">
+    <div class="max-w-3xl mx-auto">
+      <nav class="text-text-muted text-sm mb-8">
+        <a href="/" class="hover:text-text-primary transition-colors">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/editions" class="hover:text-text-primary transition-colors">Editions</a>
+        <span class="mx-2">/</span>
+        <span class="text-text-secondary">{truncatedBreadcrumb}</span>
+      </nav>
+
+      <article>
+        {edition.date && <span class="text-text-muted text-sm">{edition.date}</span>}
+        <h1 class="text-3xl sm:text-4xl font-bold text-text-primary mt-2 mb-6 leading-snug">
+          {edition.cleanTitle}
+        </h1>
+
+        {edition.image && (
+          <div class="edition-hero-image mb-8">
+            <img src={edition.image} alt={edition.cleanTitle} class="w-full rounded-2xl" loading="eager" />
+          </div>
+        )}
+
+        {edition.description && (
+          <div class="text-text-secondary text-base sm:text-lg leading-relaxed mb-8">
+            <p>{edition.description}</p>
+          </div>
+        )}
+
+        <!-- Read full edition CTA -->
+        <div class="glass-card p-6 sm:p-8 text-center mb-8">
+          <p class="text-text-primary font-medium mb-2">Read the full edition</p>
+          <p class="text-text-muted text-sm mb-4">This is a summary. The full edition is available on Substack.</p>
+          <a
+            href={edition.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn-primary inline-flex text-sm"
+            onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'edition',type:'read-substack'}})"
+          >
+            Read on Substack <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+
+        <!-- Access Request CTA -->
+        <div class="glass-card p-6 sm:p-8 text-center mb-8">
+          <p class="text-text-primary font-medium mb-1">Want AI-powered insights on these topics?</p>
+          <p class="text-text-muted text-sm mb-4">Request access to AmbitiousOS — your personal Chief AI Officer.</p>
+          <AccessRequestForm id={`edition-access-${slug}`} inline />
+        </div>
+
+        <!-- Explore link -->
+        <div class="text-center mb-8">
+          <a href="/explore" class="text-text-muted text-sm hover:text-text-primary transition-colors">
+            Explore {'>'}500 entities in the knowledge graph &rarr;
+          </a>
+        </div>
+      </article>
+
+      <!-- Subscribe -->
+      <div class="glass-card p-6 sm:p-8 text-center">
+        <p class="text-text-primary font-medium mb-1">Get the next edition in your inbox</p>
+        <p class="text-text-muted text-sm mb-4">Free every Friday. No spam.</p>
+        <form
+          action="https://www.readingambitiously.com/api/v1/free?nojs=true"
+          method="post"
+          target="_blank"
+          class="max-w-sm mx-auto"
+        >
+          <input type="hidden" name="first_url" value={`https://ambitiousos.com/editions/${slug}`} />
+          <input type="hidden" name="first_referrer" value="" />
+          <input type="hidden" name="current_url" value={`https://ambitiousos.com/editions/${slug}`} />
+          <input type="hidden" name="current_referrer" value="" />
+          <div class="flex gap-2">
+            <input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              required
+              class="ed-email-input"
+              aria-label="Email address"
+            />
+            <button type="submit" class="btn-primary whitespace-nowrap text-sm py-2.5 px-4">
+              Subscribe
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+  <Footer />
+  <ScrollCTA />
+</Base>
+
+<style>
+  .edition-hero-image {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+
+  .edition-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+  }
+
+  .ed-email-input {
+    flex: 1;
+    padding: 0.625rem 0.875rem;
+    background: rgba(30, 28, 23, 0.8);
+    border: 1px solid rgba(238, 228, 219, 0.12);
+    border-radius: 10px;
+    color: #eee4db;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .ed-email-input::placeholder { color: #666; }
+  .ed-email-input:focus {
+    border-color: rgba(2, 69, 54, 0.5);
+    box-shadow: 0 0 0 3px rgba(2, 69, 54, 0.15);
+  }
+</style>

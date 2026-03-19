@@ -1,4 +1,6 @@
 ---
+import { ViewTransitions } from 'astro:transitions';
+
 interface Props {
   title: string;
   description: string;
@@ -10,7 +12,7 @@ interface Props {
 const {
   title,
   description,
-  ogImage = '/og-image.png',
+  ogImage = '/og-image.jpg',
   canonicalUrl,
   jsonLd,
 } = Astro.props;
@@ -79,6 +81,8 @@ const defaultJsonLd = {
       data-domain="ambitiousos.com"
       src="https://plausible.io/js/script.tagged-events.js"
     ></script>
+
+    <ViewTransitions />
   </head>
   <body class="min-h-screen">
     <slot />

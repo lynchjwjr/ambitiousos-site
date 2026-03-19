@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/global.css';
 
@@ -67,6 +68,7 @@ const jsonLd = {
   description="Every Friday, Reading Ambitiously delivers curated AI research, big ideas, charts, and insights. Subscribe free."
   jsonLd={jsonLd}
 >
+  <Header />
   <main class="section-padding">
     <div class="max-w-3xl mx-auto">
       <nav class="text-text-muted text-sm mb-8">

@@ -1,0 +1,150 @@
+---
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import '../../styles/global.css';
+import { fetchAllEditions } from '../../lib/editions';
+
+const editions = await fetchAllEditions();
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://ambitiousos.com' },
+    { '@type': 'ListItem', position: 2, name: 'Editions', item: 'https://ambitiousos.com/editions' },
+  ],
+};
+---
+
+<Base
+  title="Newsletter Archive — Reading Ambitiously Editions"
+  description={`Browse all ${editions.length} editions of Reading Ambitiously. Weekly AI intelligence covering companies, people, and concepts shaping the future.`}
+  jsonLd={jsonLd}
+>
+  <Header />
+  <main class="section-padding">
+    <div class="max-w-4xl mx-auto">
+      <nav class="text-text-muted text-sm mb-8">
+        <a href="/" class="hover:text-text-primary transition-colors">Home</a>
+        <span class="mx-2">/</span>
+        <span class="text-text-secondary">Editions</span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
+        Newsletter Archive
+      </h1>
+      <p class="text-text-secondary text-lg mb-10 leading-relaxed">
+        {editions.length} editions of Reading Ambitiously. Each one feeds the AI knowledge graph powering AmbitiousOS.
+      </p>
+
+      {editions.length === 0 ? (
+        <div class="glass-card p-8 text-center">
+          <p class="text-text-muted">Unable to load editions. Please try again later.</p>
+          <a href="https://www.readingambitiously.com/archive" target="_blank" rel="noopener noreferrer" class="btn-secondary mt-4 inline-flex text-sm">
+            View on Substack <span aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      ) : (
+        <div class="space-y-4">
+          {editions.map((ed, i) => (
+            <a
+              href={`/editions/${ed.slug}`}
+              class="edition-card glass-card p-5 block group hover:border-accent/30 transition-colors"
+            >
+              <div class="flex flex-col sm:flex-row gap-4">
+                {ed.image && i < 6 && (
+                  <div class="edition-image-wrap flex-shrink-0">
+                    <img src={ed.image} alt={ed.cleanTitle} class="edition-image" loading="lazy" />
+                  </div>
+                )}
+                <div class="flex-1 min-w-0">
+                  <span class="text-text-muted text-xs">{ed.date}</span>
+                  <h2 class="text-text-primary font-medium text-lg group-hover:text-galaxy-sage transition-colors mt-1 leading-snug">
+                    {ed.cleanTitle}
+                  </h2>
+                  {ed.description && (
+                    <p class="text-text-secondary text-sm mt-2 leading-relaxed">{ed.description}</p>
+                  )}
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+
+      <!-- Subscribe CTA -->
+      <div class="mt-12 glass-card p-6 sm:p-8 text-center">
+        <p class="text-text-primary font-medium mb-1">Never miss an edition</p>
+        <p class="text-text-muted text-sm mb-4">Free newsletter every Friday.</p>
+        <form
+          action="https://www.readingambitiously.com/api/v1/free?nojs=true"
+          method="post"
+          target="_blank"
+          class="max-w-sm mx-auto"
+        >
+          <input type="hidden" name="first_url" value="https://ambitiousos.com/editions" />
+          <input type="hidden" name="first_referrer" value="" />
+          <input type="hidden" name="current_url" value="https://ambitiousos.com/editions" />
+          <input type="hidden" name="current_referrer" value="" />
+          <div class="flex gap-2">
+            <input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              required
+              class="edition-email-input"
+              aria-label="Email address"
+            />
+            <button type="submit" class="btn-primary whitespace-nowrap text-sm py-2.5 px-4">
+              Subscribe
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .edition-image-wrap {
+    width: 160px;
+    aspect-ratio: 16 / 10;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .edition-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 639px) {
+    .edition-image-wrap {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  .edition-email-input {
+    flex: 1;
+    padding: 0.625rem 0.875rem;
+    background: rgba(30, 28, 23, 0.8);
+    border: 1px solid rgba(238, 228, 219, 0.12);
+    border-radius: 10px;
+    color: #eee4db;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .edition-email-input::placeholder { color: #666; }
+  .edition-email-input:focus {
+    border-color: rgba(2, 69, 54, 0.5);
+    box-shadow: 0 0 0 3px rgba(2, 69, 54, 0.15);
+  }
+</style>

@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import AccessRequestForm from '../components/AccessRequestForm.astro';
 import '../styles/global.css';
 
 const faqs = [
@@ -38,7 +40,7 @@ const faqs = [
   },
 ];
 
-const jsonLd = {
+const faqLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: faqs.map((faq) => ({
@@ -50,6 +52,17 @@ const jsonLd = {
     },
   })),
 };
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://ambitiousos.com' },
+    { '@type': 'ListItem', position: 2, name: 'FAQ', item: 'https://ambitiousos.com/faq' },
+  ],
+};
+
+const jsonLd = { '@context': 'https://schema.org', '@graph': [faqLd, breadcrumbLd] };
 ---
 
 <Base
@@ -57,6 +70,7 @@ const jsonLd = {
   description="Frequently asked questions about AmbitiousOS, your personal Chief AI Officer, and the Reading Ambitiously newsletter."
   jsonLd={jsonLd}
 >
+  <Header />
   <main class="section-padding">
     <div class="max-w-3xl mx-auto">
       <nav class="text-text-muted text-sm mb-8">
@@ -86,11 +100,10 @@ const jsonLd = {
         ))}
       </div>
 
-      <div class="text-center mt-12">
-        <p class="text-text-muted text-sm mb-4">Still have questions?</p>
-        <a href="mailto:jack@readingambitiously.com" class="btn-secondary">
-          Get in touch
-        </a>
+      <div class="mt-12 glass-card p-6 sm:p-8 text-center">
+        <p class="text-text-primary font-medium mb-1">Ready to try it?</p>
+        <p class="text-text-muted text-sm mb-4">Request access to AmbitiousOS — your personal Chief AI Officer.</p>
+        <AccessRequestForm id="faq-access" inline />
       </div>
     </div>
   </main>

@@ -151,6 +151,8 @@ const { id, inline = false } = Astro.props;
 
 <script>
   document.querySelectorAll('[data-access-form]').forEach((form) => {
+    const pageLoadTime = Date.now();
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const f = e.target as HTMLFormElement;
@@ -175,7 +177,7 @@ const { id, inline = false } = Astro.props;
         const res = await fetch('https://ra-os-api.fly.dev/api/access/request', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email }),
+          body: JSON.stringify({ name, email, _ts: pageLoadTime }),
         });
 
         if (res.ok) {

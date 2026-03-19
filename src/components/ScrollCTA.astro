@@ -1,0 +1,150 @@
+---
+/* Scroll-triggered newsletter CTA — appears once at 60% scroll depth, dismissible, once per session */
+---
+
+<div class="scroll-cta" id="scroll-cta" aria-hidden="true">
+  <div class="scroll-cta-inner">
+    <button type="button" class="scroll-cta-close" id="scroll-cta-close" aria-label="Dismiss">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <p class="text-text-primary font-medium text-sm mb-1">Get weekly AI intelligence</p>
+    <p class="text-text-muted text-xs mb-3">Free newsletter every Friday. Join thousands of readers.</p>
+    <form
+      action="https://www.readingambitiously.com/api/v1/free?nojs=true"
+      method="post"
+      target="_blank"
+      class="flex gap-2"
+    >
+      <input type="hidden" name="first_url" value="" />
+      <input type="hidden" name="first_referrer" value="" />
+      <input type="hidden" name="current_url" value="" />
+      <input type="hidden" name="current_referrer" value="" />
+      <input
+        type="email"
+        name="email"
+        placeholder="you@example.com"
+        required
+        class="scroll-email-input"
+        aria-label="Email address"
+      />
+      <button type="submit" class="btn-primary whitespace-nowrap text-xs py-2 px-3" onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'scroll-cta',type:'subscribe'}})">
+        Subscribe
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .scroll-cta {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 35;
+    max-width: 320px;
+    transform: translateY(120%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .scroll-cta.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .scroll-cta-inner {
+    position: relative;
+    background: rgba(22, 20, 15, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(238, 228, 219, 0.1);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  .scroll-cta-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #777;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color 0.15s ease;
+  }
+
+  .scroll-cta-close:hover { color: #eee4db; }
+
+  .scroll-email-input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+    background: rgba(30, 28, 23, 0.8);
+    border: 1px solid rgba(238, 228, 219, 0.12);
+    border-radius: 8px;
+    color: #eee4db;
+    font-size: 0.8125rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .scroll-email-input::placeholder { color: #666; }
+  .scroll-email-input:focus {
+    border-color: rgba(2, 69, 54, 0.5);
+    box-shadow: 0 0 0 3px rgba(2, 69, 54, 0.15);
+  }
+
+  @media (max-width: 639px) {
+    .scroll-cta {
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      max-width: none;
+    }
+  }
+</style>
+
+<script>
+  const cta = document.getElementById('scroll-cta');
+  const closeBtn = document.getElementById('scroll-cta-close');
+
+  if (cta && !sessionStorage.getItem('scroll-cta-dismissed')) {
+    // Create a sentinel element at 60% page height
+    const sentinel = document.createElement('div');
+    sentinel.style.position = 'absolute';
+    sentinel.style.top = '60%';
+    sentinel.style.width = '1px';
+    sentinel.style.height = '1px';
+    sentinel.style.pointerEvents = 'none';
+    document.body.style.position = 'relative';
+    document.body.appendChild(sentinel);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            cta.classList.add('is-visible');
+            cta.setAttribute('aria-hidden', 'false');
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0 }
+    );
+    observer.observe(sentinel);
+  }
+
+  closeBtn?.addEventListener('click', () => {
+    cta?.classList.remove('is-visible');
+    cta?.setAttribute('aria-hidden', 'true');
+    sessionStorage.setItem('scroll-cta-dismissed', '1');
+  });
+</script>

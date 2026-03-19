@@ -7,19 +7,45 @@ const topicLinks = [
   { title: 'AI Strategy', href: '/topics/ai-strategy' },
 ];
 
-// SEO topic tags — pulled from the 493-entity knowledge graph corpus
+// SEO topic tags — pulled from the knowledge graph corpus, linked to entity pages
 const corpusTopics = [
-  'OpenAI', 'Anthropic', 'Google', 'Microsoft', 'Nvidia', 'Salesforce',
-  'Meta', 'Palantir', 'Amazon', 'Stripe', 'Databricks',
-  'ChatGPT', 'Claude', 'Cursor', 'DeepSeek', 'Gemini',
-  'Sam Altman', 'Jensen Huang', 'Marc Benioff', 'Dario Amodei', 'Satya Nadella',
-  'Jevons Paradox', 'Scaling Laws', 'AI Pricing', 'Vertical SaaS',
-  'Klarna', 'ServiceTitan', 'Rippling', 'a16z', 'Y Combinator',
+  { name: 'OpenAI', slug: 'openai' },
+  { name: 'Anthropic', slug: 'anthropic' },
+  { name: 'Google', slug: 'google' },
+  { name: 'Microsoft', slug: 'microsoft' },
+  { name: 'Nvidia', slug: 'nvidia' },
+  { name: 'Salesforce', slug: 'salesforce' },
+  { name: 'Meta', slug: 'meta' },
+  { name: 'Palantir', slug: 'palantir' },
+  { name: 'Amazon', slug: 'amazon' },
+  { name: 'Stripe', slug: 'stripe' },
+  { name: 'Databricks', slug: 'databricks' },
+  { name: 'ChatGPT', slug: 'chatgpt' },
+  { name: 'Claude', slug: 'claude' },
+  { name: 'Cursor', slug: 'cursor' },
+  { name: 'DeepSeek', slug: 'deepseek' },
+  { name: 'Gemini', slug: 'gemini' },
+  { name: 'Sam Altman', slug: 'sam-altman' },
+  { name: 'Jensen Huang', slug: 'jensen-huang' },
+  { name: 'Marc Benioff', slug: 'marc-benioff' },
+  { name: 'Dario Amodei', slug: 'dario-amodei' },
+  { name: 'Satya Nadella', slug: 'satya-nadella' },
+  { name: 'Jevons Paradox', slug: 'jevons-paradox' },
+  { name: 'Scaling Laws', slug: 'scaling-laws' },
+  { name: 'AI Pricing', slug: 'ai-pricing' },
+  { name: 'Vertical SaaS', slug: 'vertical-saas' },
+  { name: 'Klarna', slug: 'klarna' },
+  { name: 'ServiceTitan', slug: 'servicetitan' },
+  { name: 'Rippling', slug: 'rippling' },
+  { name: 'a16z', slug: 'a16z' },
+  { name: 'Y Combinator', slug: 'y-combinator' },
 ];
 
 const productLinks = [
   { title: 'AmbitiousOS App', href: 'https://os.readingambitiously.com', external: true },
   { title: 'Galaxy', href: 'https://os.readingambitiously.com/galaxy', external: true },
+  { title: 'Explore', href: '/explore' },
+  { title: 'Editions', href: '/editions' },
   { title: 'Newsletter', href: '/newsletter' },
   { title: 'FAQ', href: '/faq' },
 ];
@@ -93,11 +119,11 @@ const legalLinks = [
     <!-- Corpus topic cloud — SEO keyword density from the knowledge graph -->
     <div class="border-t border-white/5 pt-8 mb-8">
       <h4 class="text-text-muted text-xs font-medium uppercase tracking-wider mb-4 text-center">
-        Explore 493 entities across the knowledge graph
+        <a href="/explore" class="hover:text-text-primary transition-colors">Explore 541+ entities across the knowledge graph</a>
       </h4>
       <div class="flex flex-wrap justify-center gap-2">
         {corpusTopics.map((topic) => (
-          <span class="corpus-tag">{topic}</span>
+          <a href={`/explore/${topic.slug}`} class="corpus-tag">{topic.name}</a>
         ))}
       </div>
     </div>
@@ -145,6 +171,7 @@ const legalLinks = [
     border-radius: 6px;
     font-size: 0.6875rem;
     color: #777;
+    text-decoration: none;
     transition: color 0.15s ease, border-color 0.15s ease;
   }
 

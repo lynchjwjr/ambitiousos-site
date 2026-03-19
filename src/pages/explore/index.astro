@@ -1,0 +1,280 @@
+---
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ScrollCTA from '../../components/ScrollCTA.astro';
+import AccessRequestForm from '../../components/AccessRequestForm.astro';
+import '../../styles/global.css';
+
+interface Entity {
+  slug: string;
+  name: string;
+  type: string;
+  mention_count: number;
+  edition_count: number;
+}
+
+interface Stats {
+  entity_count: number;
+  edge_count: number;
+  by_type: Record<string, number>;
+  enriched_doc_count: number;
+}
+
+let entities: Entity[] = [];
+let stats: Stats | null = null;
+
+const API_BASE = 'https://ra-os-api.fly.dev';
+
+try {
+  const [entitiesRes, statsRes] = await Promise.all([
+    fetch(`${API_BASE}/api/graph/entities`),
+    fetch(`${API_BASE}/api/graph/stats`),
+  ]);
+  if (entitiesRes.ok) entities = await entitiesRes.json();
+  if (statsRes.ok) stats = await statsRes.json();
+} catch (e) {
+  console.warn('Failed to fetch entity data for explore hub:', e);
+}
+
+// Sort by mention count descending
+entities.sort((a, b) => b.mention_count - a.mention_count);
+
+const typeOrder = ['company', 'person', 'concept', 'product', 'publication', 'framework'];
+const typeLabels: Record<string, string> = {
+  company: 'Companies',
+  person: 'People',
+  concept: 'Concepts',
+  product: 'Products',
+  publication: 'Publications',
+  framework: 'Frameworks',
+};
+
+const typeCounts = stats?.by_type || {};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Explore the AI Knowledge Graph',
+  description: `Browse ${entities.length} entities tracked across ${stats?.enriched_doc_count || 66} editions of Reading Ambitiously.`,
+  url: 'https://ambitiousos.com/explore',
+  isPartOf: { '@type': 'WebSite', name: 'AmbitiousOS', url: 'https://ambitiousos.com' },
+};
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://ambitiousos.com' },
+    { '@type': 'ListItem', position: 2, name: 'Explore', item: 'https://ambitiousos.com/explore' },
+  ],
+};
+---
+
+<Base
+  title={`Explore ${entities.length} AI Entities — AmbitiousOS Knowledge Graph`}
+  description={`Browse companies, people, concepts, and products tracked across ${stats?.enriched_doc_count || 66} editions of Reading Ambitiously. Discover connections in the AI ecosystem.`}
+  jsonLd={{ '@context': 'https://schema.org', '@graph': [jsonLd, breadcrumbLd] }}
+>
+  <Header />
+  <main class="section-padding">
+    <div class="max-w-6xl mx-auto">
+      <nav class="text-text-muted text-sm mb-8">
+        <a href="/" class="hover:text-text-primary transition-colors">Home</a>
+        <span class="mx-2">/</span>
+        <span class="text-text-secondary">Explore</span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
+        Explore the Knowledge Graph
+      </h1>
+      <p class="text-text-secondary text-lg mb-8 leading-relaxed max-w-2xl">
+        {entities.length} entities tracked across {stats?.edge_count || 1115} connections and {stats?.enriched_doc_count || 66} newsletter editions. Search and explore the AI ecosystem.
+      </p>
+
+      <!-- Search -->
+      <div class="mb-8">
+        <input
+          type="search"
+          id="entity-search"
+          placeholder="Search entities..."
+          class="search-input"
+          aria-label="Search entities"
+        />
+      </div>
+
+      <!-- Category tabs -->
+      <div class="flex flex-wrap gap-2 mb-8" id="type-tabs">
+        <button type="button" class="type-tab is-active" data-type="all">
+          All <span class="tab-count">{entities.length}</span>
+        </button>
+        {typeOrder.map((type) => (
+          <button type="button" class="type-tab" data-type={type}>
+            {typeLabels[type]} <span class="tab-count">{typeCounts[type] || 0}</span>
+          </button>
+        ))}
+      </div>
+
+      <!-- Entity count indicator -->
+      <p class="text-text-muted text-sm mb-4" id="result-count">
+        Showing {entities.length} entities
+      </p>
+
+      <!-- Entity grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="entity-grid">
+        {entities.map((entity) => (
+          <a
+            href={`/explore/${entity.slug}`}
+            class="entity-card glass-card p-4 block group"
+            data-type={entity.type}
+            data-name={entity.name.toLowerCase()}
+          >
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <h2 class="text-text-primary font-medium group-hover:text-galaxy-teal transition-colors leading-snug">
+                {entity.name}
+              </h2>
+              <span class={`type-badge type-${entity.type}`}>{entity.type}</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs text-text-muted">
+              <span>{entity.mention_count} mention{entity.mention_count !== 1 ? 's' : ''}</span>
+              <span>&middot;</span>
+              <span>{entity.edition_count} edition{entity.edition_count !== 1 ? 's' : ''}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <!-- No results message -->
+      <div class="hidden text-center py-12" id="no-results">
+        <p class="text-text-muted text-lg">No entities found matching your search.</p>
+      </div>
+
+      <!-- CTA -->
+      <div class="mt-16 glass-card p-6 sm:p-8 text-center">
+        <p class="text-text-primary font-medium mb-1">Want to explore these entities with AI?</p>
+        <p class="text-text-muted text-sm mb-4">Ask questions about any company, person, or concept in the knowledge graph.</p>
+        <AccessRequestForm id="explore-access" inline />
+      </div>
+    </div>
+  </main>
+  <Footer />
+  <ScrollCTA />
+</Base>
+
+<!-- Inline entity data for client-side search -->
+<script define:vars={{ entitiesJson: JSON.stringify(entities.map(e => ({ s: e.slug, n: e.name, t: e.type, m: e.mention_count, e: e.edition_count }))) }}>
+  const entities = JSON.parse(entitiesJson);
+  const searchInput = document.getElementById('entity-search');
+  const grid = document.getElementById('entity-grid');
+  const cards = grid ? Array.from(grid.children) : [];
+  const tabs = document.querySelectorAll('.type-tab');
+  const resultCount = document.getElementById('result-count');
+  const noResults = document.getElementById('no-results');
+
+  let activeType = 'all';
+
+  function filterEntities() {
+    const query = (searchInput?.value || '').toLowerCase().trim();
+    let visible = 0;
+
+    cards.forEach((card, i) => {
+      const name = card.getAttribute('data-name') || '';
+      const type = card.getAttribute('data-type') || '';
+      const matchType = activeType === 'all' || type === activeType;
+      const matchSearch = !query || name.includes(query);
+      const show = matchType && matchSearch;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    if (resultCount) resultCount.textContent = `Showing ${visible} entit${visible === 1 ? 'y' : 'ies'}`;
+    if (noResults) noResults.classList.toggle('hidden', visible > 0);
+  }
+
+  searchInput?.addEventListener('input', filterEntities);
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+      activeType = tab.getAttribute('data-type') || 'all';
+      filterEntities();
+    });
+  });
+</script>
+
+<style>
+  .search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.75rem 1rem;
+    background: rgba(30, 28, 23, 0.8);
+    border: 1px solid rgba(238, 228, 219, 0.12);
+    border-radius: 12px;
+    color: #eee4db;
+    font-size: 0.9375rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .search-input::placeholder { color: #666; }
+  .search-input:focus {
+    border-color: rgba(2, 69, 54, 0.5);
+    box-shadow: 0 0 0 3px rgba(2, 69, 54, 0.15);
+  }
+
+  .type-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    color: #777;
+    background: rgba(30, 28, 23, 0.6);
+    border: 1px solid rgba(238, 228, 219, 0.06);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .type-tab:hover {
+    color: #aaa;
+    border-color: rgba(238, 228, 219, 0.12);
+  }
+
+  .type-tab.is-active {
+    color: #eee4db;
+    background: rgba(2, 69, 54, 0.3);
+    border-color: rgba(2, 69, 54, 0.5);
+  }
+
+  .tab-count {
+    font-size: 0.6875rem;
+    opacity: 0.7;
+  }
+
+  .entity-card {
+    transition: border-color 0.2s ease, transform 0.15s ease;
+  }
+
+  .entity-card:hover {
+    transform: translateY(-1px);
+  }
+
+  .type-badge {
+    flex-shrink: 0;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 6px;
+  }
+
+  .type-company { color: #3D8B6E; background: rgba(61, 139, 110, 0.12); }
+  .type-person { color: #D4A574; background: rgba(212, 165, 116, 0.12); }
+  .type-concept { color: #C5DDB9; background: rgba(197, 221, 185, 0.12); }
+  .type-product { color: #7CADE2; background: rgba(124, 173, 226, 0.12); }
+  .type-publication { color: #E2A07C; background: rgba(226, 160, 124, 0.12); }
+  .type-framework { color: #B4A0D4; background: rgba(180, 160, 212, 0.12); }
+</style>

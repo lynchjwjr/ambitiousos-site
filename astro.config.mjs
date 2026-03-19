@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://ambitiousos.com',
+  prefetch: true,
   integrations: [
     tailwind(),
     sitemap(),

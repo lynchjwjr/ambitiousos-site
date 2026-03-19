@@ -1,0 +1,19 @@
+name: Scheduled Rebuild
+
+on:
+  schedule:
+    # Every Friday at 8pm ET (midnight UTC Saturday) — after newsletter publishes
+    - cron: '0 0 * * 6'
+    # Daily at midnight ET (4am UTC) — keep entity data fresh
+    - cron: '0 4 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Deploy Hook
+        run: curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"

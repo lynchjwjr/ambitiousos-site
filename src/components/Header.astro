@@ -1,0 +1,177 @@
+---
+const navLinks = [
+  { title: 'Home', href: '/' },
+  { title: 'Explore', href: '/explore' },
+  { title: 'Newsletter', href: '/newsletter' },
+  { title: 'FAQ', href: '/faq' },
+];
+---
+
+<header class="site-header" id="site-header">
+  <div class="header-inner">
+    <a href="/" class="header-logo" aria-label="AmbitiousOS home">
+      <img src="/favicon.svg" alt="" class="h-8 w-8" />
+      <span class="text-text-primary font-semibold text-sm hidden sm:inline">AmbitiousOS</span>
+    </a>
+
+    <nav class="header-nav" aria-label="Main navigation">
+      {navLinks.map((link) => (
+        <a href={link.href} class="header-link">{link.title}</a>
+      ))}
+    </nav>
+
+    <button
+      type="button"
+      class="mobile-menu-btn"
+      id="mobile-menu-btn"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6" class="menu-line menu-line-top" />
+        <line x1="3" y1="12" x2="21" y2="12" class="menu-line menu-line-mid" />
+        <line x1="3" y1="18" x2="21" y2="18" class="menu-line menu-line-bot" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+    {navLinks.map((link) => (
+      <a href={link.href} class="mobile-link">{link.title}</a>
+    ))}
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(12, 11, 9, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(238, 228, 219, 0.06);
+  }
+
+  .header-inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+
+  .header-nav {
+    display: none;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .header-nav {
+      display: flex;
+    }
+    .mobile-menu-btn {
+      display: none !important;
+    }
+  }
+
+  .header-link {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    color: #aaa;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .header-link:hover {
+    color: #eee4db;
+    background: rgba(238, 228, 219, 0.05);
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    color: #aaa;
+    background: none;
+    border: 1px solid rgba(238, 228, 219, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .mobile-menu-btn:hover {
+    color: #eee4db;
+    border-color: rgba(238, 228, 219, 0.2);
+  }
+
+  .menu-line {
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    transform-origin: center;
+  }
+
+  .mobile-menu-btn[aria-expanded="true"] .menu-line-top {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .mobile-menu-btn[aria-expanded="true"] .menu-line-mid {
+    opacity: 0;
+  }
+  .mobile-menu-btn[aria-expanded="true"] .menu-line-bot {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    padding: 0.5rem 1.5rem 1rem;
+    border-top: 1px solid rgba(238, 228, 219, 0.06);
+  }
+
+  .mobile-menu.is-open {
+    display: flex;
+  }
+
+  .mobile-link {
+    padding: 0.75rem 0;
+    font-size: 0.9375rem;
+    color: #aaa;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(238, 228, 219, 0.04);
+    transition: color 0.15s ease;
+  }
+
+  .mobile-link:last-child {
+    border-bottom: none;
+  }
+
+  .mobile-link:hover {
+    color: #eee4db;
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+
+  if (btn && menu) {
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      menu.classList.toggle('is-open');
+      menu.setAttribute('aria-hidden', String(open));
+    });
+  }
+</script>

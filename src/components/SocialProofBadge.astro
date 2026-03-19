@@ -4,12 +4,24 @@ interface Props {
 }
 
 const { class: className = '' } = Astro.props;
+
+let entityCount = 541;
+let editionCount = 66;
+
+try {
+  const res = await fetch('https://ra-os-api.fly.dev/api/graph/stats');
+  if (res.ok) {
+    const stats = await res.json();
+    entityCount = stats.entity_count || entityCount;
+    editionCount = stats.enriched_doc_count || editionCount;
+  }
+} catch {}
 ---
 
 <div class:list={['social-proof-badge inline-flex items-center gap-2 px-4 py-2 rounded-full', className]}>
   <span class="badge-dot"></span>
   <span class="text-sm text-text-secondary font-medium">
-    Beta access open — subscribe to join
+    {entityCount} entities tracked across {editionCount} editions
   </span>
 </div>
 

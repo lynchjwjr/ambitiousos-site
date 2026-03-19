@@ -58,7 +58,10 @@ try {
       excerpt = excerpt.slice(0, 150).replace(/\s+\S*$/, '') + '…';
     }
 
-    return { title: decodedTitle, date, link, description: excerpt, image };
+    // Create local slug from Substack URL
+    const localSlug = link.split('/').pop()?.replace(/\?.*$/, '') || '';
+
+    return { title: decodedTitle, date, link, description: excerpt, image, localSlug };
   });
 } catch {
   fetchFailed = true;
@@ -199,9 +202,9 @@ const urgencyText = dayOfWeek === 5
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {recent.map((ed) => (
               <a
-                href={ed.link}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={ed.localSlug ? `/editions/${ed.localSlug}` : ed.link}
+                target={ed.localSlug ? undefined : '_blank'}
+                rel={ed.localSlug ? undefined : 'noopener noreferrer'}
                 class="glass-card p-5 group hover:border-accent/30 transition-colors block"
               >
                 {ed.image && (

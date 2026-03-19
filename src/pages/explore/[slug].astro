@@ -1,0 +1,470 @@
+---
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ScrollCTA from '../../components/ScrollCTA.astro';
+import AccessRequestForm from '../../components/AccessRequestForm.astro';
+import '../../styles/global.css';
+
+const API_BASE = 'https://ra-os-api.fly.dev';
+
+export async function getStaticPaths() {
+  const apiBase = 'https://ra-os-api.fly.dev';
+  let entities: { slug: string; name: string; type: string; mention_count: number; edition_count: number }[] = [];
+
+  try {
+    const res = await fetch(`${apiBase}/api/graph/entities`);
+    if (res.ok) entities = await res.json();
+  } catch (e) {
+    console.warn('Failed to fetch entities for static paths:', e);
+  }
+
+  return entities.map((entity) => ({
+    params: { slug: entity.slug },
+    props: { entity },
+  }));
+}
+
+interface Neighbor {
+  slug: string;
+  name: string;
+  type: string;
+  mention_count: number;
+}
+
+interface Edge {
+  source: string;
+  target: string;
+  weight: number;
+}
+
+interface EntityDetail {
+  slug: string;
+  name: string;
+  type: string;
+  aliases?: string[];
+  mention_count: number;
+  edition_count: number;
+  doc_ids?: string[];
+  source_types?: string[];
+  first_seen?: string;
+  last_seen?: string;
+  co_occurring?: { slug: string; name: string; weight: number }[];
+  chunk_excerpts?: { chunk_id: string; text: string; title: string; date: string }[];
+}
+
+const { entity } = Astro.props;
+const { slug } = Astro.params;
+
+// Fetch detail and neighbors in parallel
+let detail: EntityDetail | null = null;
+let neighbors: { nodes: Neighbor[]; edges: Edge[] } = { nodes: [], edges: [] };
+
+try {
+  const [detailRes, neighborsRes] = await Promise.all([
+    fetch(`${API_BASE}/api/graph/entity/${slug}`),
+    fetch(`${API_BASE}/api/graph/neighbors/${slug}`),
+  ]);
+  if (detailRes.ok) detail = await detailRes.json();
+  if (neighborsRes.ok) neighbors = await neighborsRes.json();
+} catch (e) {
+  console.warn(`Failed to fetch detail for entity ${slug}:`, e);
+}
+
+const name = detail?.name || entity.name;
+const type = detail?.type || entity.type;
+const mentionCount = detail?.mention_count || entity.mention_count;
+const editionCount = detail?.edition_count || entity.edition_count;
+const aliases = detail?.aliases || [];
+const sourceTypes = detail?.source_types || [];
+const coOccurring = detail?.co_occurring || [];
+const excerpts = detail?.chunk_excerpts?.slice(0, 3) || [];
+
+// Connected entities (exclude self)
+const connected = neighbors.nodes
+  .filter((n) => n.slug !== slug)
+  .sort((a, b) => b.mention_count - a.mention_count)
+  .slice(0, 20);
+
+// Format dates
+function formatDate(dateStr: string | undefined) {
+  if (!dateStr) return null;
+  try {
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch { return null; }
+}
+
+const firstSeen = formatDate(detail?.first_seen);
+const lastSeen = formatDate(detail?.last_seen);
+
+// Source type labels
+const sourceLabels: Record<string, string> = {
+  article_extracted: 'Articles',
+  newsletter_mention: 'Newsletter',
+  youtube_extracted: 'YouTube',
+  chart_extracted: 'Charts',
+  tweet_extracted: 'Tweets',
+};
+
+// JSON-LD type mapping
+const schemaTypeMap: Record<string, string> = {
+  company: 'Organization',
+  person: 'Person',
+  concept: 'DefinedTerm',
+  product: 'SoftwareApplication',
+  publication: 'Periodical',
+  framework: 'DefinedTerm',
+};
+
+const typeLabels: Record<string, string> = {
+  company: 'Company',
+  person: 'Person',
+  concept: 'Concept',
+  product: 'Product',
+  publication: 'Publication',
+  framework: 'Framework',
+};
+
+const metaDescription = `${name} — ${typeLabels[type] || type}. Mentioned ${mentionCount} times across ${editionCount} editions of Reading Ambitiously. Explore connections and insights in the AI knowledge graph.`;
+
+const entityLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': schemaTypeMap[type] || 'Thing',
+  name: name,
+  description: metaDescription,
+  url: `https://ambitiousos.com/explore/${slug}`,
+};
+
+if (aliases.length > 0) entityLd.alternateName = aliases;
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://ambitiousos.com' },
+    { '@type': 'ListItem', position: 2, name: 'Explore', item: 'https://ambitiousos.com/explore' },
+    { '@type': 'ListItem', position: 3, name: name, item: `https://ambitiousos.com/explore/${slug}` },
+  ],
+};
+
+// Related topic pages
+const topicMap: Record<string, { title: string; href: string }[]> = {
+  company: [
+    { title: 'Enterprise AI', href: '/topics/enterprise-ai' },
+    { title: 'AI Strategy', href: '/topics/ai-strategy' },
+  ],
+  person: [
+    { title: 'AI Strategy', href: '/topics/ai-strategy' },
+    { title: 'AI Agents', href: '/topics/ai-agents' },
+  ],
+  concept: [
+    { title: 'Context Engineering', href: '/topics/context-engineering' },
+    { title: 'AI Strategy', href: '/topics/ai-strategy' },
+  ],
+  product: [
+    { title: 'Vibe Coding', href: '/topics/vibe-coding' },
+    { title: 'AI Agents', href: '/topics/ai-agents' },
+  ],
+  publication: [
+    { title: 'AI Strategy', href: '/topics/ai-strategy' },
+  ],
+  framework: [
+    { title: 'Context Engineering', href: '/topics/context-engineering' },
+    { title: 'AI Agents', href: '/topics/ai-agents' },
+  ],
+};
+
+const relatedTopics = topicMap[type] || [];
+---
+
+<Base
+  title={`${name} — AI Knowledge Graph | AmbitiousOS`}
+  description={metaDescription}
+  jsonLd={{ '@context': 'https://schema.org', '@graph': [entityLd, breadcrumbLd] }}
+>
+  <Header />
+  <main class="section-padding">
+    <div class="max-w-3xl mx-auto">
+      <nav class="text-text-muted text-sm mb-8">
+        <a href="/" class="hover:text-text-primary transition-colors">Home</a>
+        <span class="mx-2">/</span>
+        <a href="/explore" class="hover:text-text-primary transition-colors">Explore</a>
+        <span class="mx-2">/</span>
+        <span class="text-text-secondary">{name}</span>
+      </nav>
+
+      <!-- Entity header -->
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-3">
+          <span class={`type-badge type-${type}`}>{typeLabels[type] || type}</span>
+          {aliases.length > 0 && (
+            <span class="text-text-muted text-xs">
+              aka {aliases.join(', ')}
+            </span>
+          )}
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-bold text-text-primary mb-4">{name}</h1>
+
+        <!-- Stats row -->
+        <div class="flex flex-wrap items-center gap-4 text-sm text-text-secondary">
+          <div class="flex items-center gap-1.5">
+            <span class="stat-dot bg-galaxy-teal"></span>
+            {mentionCount} mention{mentionCount !== 1 ? 's' : ''}
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="stat-dot bg-galaxy-copper"></span>
+            {editionCount} edition{editionCount !== 1 ? 's' : ''}
+          </div>
+          {sourceTypes.length > 0 && (
+            <div class="flex items-center gap-1.5">
+              <span class="stat-dot bg-galaxy-sage"></span>
+              {sourceTypes.length} source type{sourceTypes.length !== 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <!-- Source types -->
+      {sourceTypes.length > 0 && (
+        <div class="glass-card p-5 mb-6">
+          <h2 class="text-sm font-semibold text-text-primary mb-3 uppercase tracking-wider">Sources</h2>
+          <div class="flex flex-wrap gap-2">
+            {sourceTypes.map((src) => (
+              <span class="source-tag">{sourceLabels[src] || src}</span>
+            ))}
+          </div>
+          {firstSeen && lastSeen && (
+            <p class="text-text-muted text-xs mt-3">
+              First tracked {firstSeen} &middot; Last seen {lastSeen}
+            </p>
+          )}
+        </div>
+      )}
+
+      <!-- Connected entities -->
+      {connected.length > 0 && (
+        <div class="glass-card p-5 sm:p-6 mb-6">
+          <h2 class="text-sm font-semibold text-text-primary mb-4 uppercase tracking-wider">
+            Connected Entities
+          </h2>
+          <div class="flex flex-wrap gap-2">
+            {connected.map((node) => (
+              <a
+                href={`/explore/${node.slug}`}
+                class="connected-entity group"
+              >
+                <span class={`connected-dot type-dot-${node.type}`}></span>
+                <span class="group-hover:text-text-primary transition-colors">{node.name}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Co-occurring entities (top connections by weight) -->
+      {coOccurring.length > 0 && (
+        <div class="glass-card p-5 sm:p-6 mb-6">
+          <h2 class="text-sm font-semibold text-text-primary mb-4 uppercase tracking-wider">
+            Most Frequently Co-Mentioned
+          </h2>
+          <div class="space-y-2">
+            {coOccurring.slice(0, 10).map((co) => (
+              <a href={`/explore/${co.slug}`} class="co-entity group flex items-center gap-3">
+                <span class="text-text-secondary group-hover:text-text-primary transition-colors flex-1">
+                  {co.name}
+                </span>
+                <span class="co-bar" style={`width: ${Math.min(100, (co.weight / coOccurring[0].weight) * 100)}%`}></span>
+                <span class="text-text-muted text-xs w-8 text-right">{co.weight}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Excerpts -->
+      {excerpts.length > 0 && (
+        <div class="glass-card p-5 sm:p-6 mb-6">
+          <h2 class="text-sm font-semibold text-text-primary mb-4 uppercase tracking-wider">
+            From the Archive
+          </h2>
+          <div class="space-y-4">
+            {excerpts.map((ex) => (
+              <div class="excerpt-card">
+                <p class="text-text-muted text-xs mb-1">{ex.title}</p>
+                <p class="text-text-secondary text-sm leading-relaxed">
+                  {ex.text.replace(/[#*!\[\]()]/g, '').slice(0, 200)}...
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Related topics -->
+      {relatedTopics.length > 0 && (
+        <div class="mb-6">
+          <h2 class="text-sm font-semibold text-text-primary mb-3 uppercase tracking-wider">Related Topics</h2>
+          <div class="flex flex-wrap gap-2">
+            {relatedTopics.map((t) => (
+              <a href={t.href} class="glass-card px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors">
+                {t.title}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- CTA -->
+      <div class="mt-10 glass-card p-6 sm:p-8 text-center">
+        <p class="text-text-primary font-medium mb-1">Ask AmbitiousOS about {name}</p>
+        <p class="text-text-muted text-sm mb-4">Get AI-powered insights from {editionCount} editions of research.</p>
+        <AccessRequestForm id={`entity-access-${slug}`} inline />
+      </div>
+
+      <!-- Newsletter subscribe -->
+      <div class="mt-8 glass-card p-6 sm:p-8 text-center">
+        <p class="text-text-primary font-medium mb-1">Get weekly AI intelligence</p>
+        <p class="text-text-muted text-sm mb-4">Free newsletter every Friday. No spam.</p>
+        <form
+          action="https://www.readingambitiously.com/api/v1/free?nojs=true"
+          method="post"
+          target="_blank"
+          class="max-w-sm mx-auto"
+        >
+          <input type="hidden" name="first_url" value={`https://ambitiousos.com/explore/${slug}`} />
+          <input type="hidden" name="first_referrer" value="" />
+          <input type="hidden" name="current_url" value={`https://ambitiousos.com/explore/${slug}`} />
+          <input type="hidden" name="current_referrer" value="" />
+          <div class="flex gap-2">
+            <input
+              type="email"
+              name="email"
+              placeholder="you@example.com"
+              required
+              class="entity-email-input"
+              aria-label="Email address for newsletter"
+            />
+            <button type="submit" class="btn-primary whitespace-nowrap text-sm py-2.5 px-4" onclick="if(typeof plausible==='function')plausible('CTA Click',{props:{location:'entity',type:'subscribe'}})">
+              Subscribe
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+  <Footer />
+  <ScrollCTA />
+</Base>
+
+<style>
+  .type-badge {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 6px;
+  }
+
+  .type-company { color: #3D8B6E; background: rgba(61, 139, 110, 0.12); }
+  .type-person { color: #D4A574; background: rgba(212, 165, 116, 0.12); }
+  .type-concept { color: #C5DDB9; background: rgba(197, 221, 185, 0.12); }
+  .type-product { color: #7CADE2; background: rgba(124, 173, 226, 0.12); }
+  .type-publication { color: #E2A07C; background: rgba(226, 160, 124, 0.12); }
+  .type-framework { color: #B4A0D4; background: rgba(180, 160, 212, 0.12); }
+
+  .stat-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .source-tag {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    background: rgba(30, 28, 23, 0.6);
+    border: 1px solid rgba(238, 228, 219, 0.06);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #aaa;
+  }
+
+  .connected-entity {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    background: rgba(30, 28, 23, 0.6);
+    border: 1px solid rgba(238, 228, 219, 0.06);
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    color: #aaa;
+    text-decoration: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .connected-entity:hover {
+    border-color: rgba(238, 228, 219, 0.15);
+  }
+
+  .connected-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .type-dot-company { background: #3D8B6E; }
+  .type-dot-person { background: #D4A574; }
+  .type-dot-concept { background: #C5DDB9; }
+  .type-dot-product { background: #7CADE2; }
+  .type-dot-publication { background: #E2A07C; }
+  .type-dot-framework { background: #B4A0D4; }
+
+  .co-entity {
+    text-decoration: none;
+    padding: 0.375rem 0;
+    border-bottom: 1px solid rgba(238, 228, 219, 0.04);
+  }
+
+  .co-entity:last-child { border-bottom: none; }
+
+  .co-bar {
+    height: 4px;
+    min-width: 8px;
+    max-width: 120px;
+    background: rgba(61, 139, 110, 0.4);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .excerpt-card {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(238, 228, 219, 0.04);
+  }
+
+  .excerpt-card:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .entity-email-input {
+    flex: 1;
+    padding: 0.625rem 0.875rem;
+    background: rgba(30, 28, 23, 0.8);
+    border: 1px solid rgba(238, 228, 219, 0.12);
+    border-radius: 10px;
+    color: #eee4db;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .entity-email-input::placeholder { color: #666; }
+  .entity-email-input:focus {
+    border-color: rgba(2, 69, 54, 0.5);
+    box-shadow: 0 0 0 3px rgba(2, 69, 54, 0.15);
+  }
+</style>
