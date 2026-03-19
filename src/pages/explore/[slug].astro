@@ -4,28 +4,13 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import ScrollCTA from '../../components/ScrollCTA.astro';
 import AccessRequestForm from '../../components/AccessRequestForm.astro';
+import { getEntities } from '../../lib/graph';
 import '../../styles/global.css';
 
 const API_BASE = 'https://ra-os-api.fly.dev';
 
 export async function getStaticPaths() {
-  const apiBase = 'https://ra-os-api.fly.dev';
-  let entities: { slug: string; name: string; type: string; mention_count: number; edition_count: number }[] = [];
-
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const res = await fetch(`${apiBase}/api/graph/entities`, { signal: AbortSignal.timeout(30_000) });
-      if (res.ok) {
-        entities = await res.json();
-        console.log(`[explore/slug] Fetched ${entities.length} entities (attempt ${attempt})`);
-        break;
-      }
-      console.warn(`[explore/slug] entities returned ${res.status} (attempt ${attempt}/3)`);
-    } catch (e) {
-      console.warn(`[explore/slug] entities fetch failed (attempt ${attempt}/3):`, e);
-    }
-    if (attempt < 3) await new Promise(r => setTimeout(r, 2000));
-  }
+  const entities = await getEntities();
 
   return entities.map((entity) => ({
     params: { slug: entity.slug },
