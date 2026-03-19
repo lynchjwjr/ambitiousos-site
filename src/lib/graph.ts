@@ -22,6 +22,7 @@ export interface GraphStats {
 
 let cachedEntities: Entity[] | null = null;
 let cachedStats: GraphStats | null = null;
+let fetchPromise: Promise<void> | null = null;
 
 async function fetchWithRetry(url: string, retries = 3): Promise<Response> {
   for (let i = 0; i < retries; i++) {
@@ -37,33 +38,38 @@ async function fetchWithRetry(url: string, retries = 3): Promise<Response> {
   return new Response('[]', { status: 503 });
 }
 
-export async function getEntities(): Promise<Entity[]> {
-  if (cachedEntities) return cachedEntities;
-
-  try {
-    const res = await fetchWithRetry(`${API_BASE}/api/graph/entities`);
-    if (res.ok) {
-      cachedEntities = await res.json();
-      console.log(`[graph] Fetched ${cachedEntities!.length} entities`);
-    }
-  } catch (e) {
-    console.warn('[graph] Failed to fetch entities:', e);
+/** Fetch both entities and stats in one go, before rate limits are consumed */
+async function ensureData(): Promise<void> {
+  if (cachedEntities && cachedStats) return;
+  if (!fetchPromise) {
+    fetchPromise = (async () => {
+      try {
+        const [entitiesRes, statsRes] = await Promise.all([
+          fetchWithRetry(`${API_BASE}/api/graph/entities`),
+          fetchWithRetry(`${API_BASE}/api/graph/stats`),
+        ]);
+        if (entitiesRes.ok) {
+          cachedEntities = await entitiesRes.json();
+          console.log(`[graph] Fetched ${cachedEntities!.length} entities`);
+        }
+        if (statsRes.ok) {
+          cachedStats = await statsRes.json();
+          console.log(`[graph] Fetched stats`);
+        }
+      } catch (e) {
+        console.warn('[graph] Failed to fetch graph data:', e);
+      }
+    })();
   }
+  await fetchPromise;
+}
 
+export async function getEntities(): Promise<Entity[]> {
+  await ensureData();
   return cachedEntities || [];
 }
 
 export async function getStats(): Promise<GraphStats | null> {
-  if (cachedStats) return cachedStats;
-
-  try {
-    const res = await fetchWithRetry(`${API_BASE}/api/graph/stats`);
-    if (res.ok) {
-      cachedStats = await res.json();
-    }
-  } catch (e) {
-    console.warn('[graph] Failed to fetch stats:', e);
-  }
-
+  await ensureData();
   return cachedStats || null;
 }
